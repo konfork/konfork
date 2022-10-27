@@ -1,4 +1,4 @@
-[![Test](https://github.com/konfork/konfork/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/konfork/konfork/actions/workflows/gradle.yml)
+[![Test](https://github.com/konfork/konfork/actions/workflows/gradle.yml/badge.svg?branch=main)](https://github.com/konfork/konfork/actions/workflows/gradle.yml)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.konfork/konfork-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.konfork/konfork-core)
 
 # Declarative Validations for Kotlin
