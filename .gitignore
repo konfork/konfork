@@ -21,14 +21,8 @@ pom.xml.versionsBackup
 jacoco.exec
 /out
 
-# Android
-local.properties
-
 # MacOS
 *.DS_Store
-
-# Javascript
-node_modules/
 
 # KotlinJS
 kotlin-js-store/
