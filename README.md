@@ -24,3 +24,18 @@ val validateUser = Validation<UserProfile> {
     }
 }
 ```
+
+## About
+Konfork is a fork of [Konform](https://www.konform.io). While Konform is an excellent project there were two big
+features missing:
+
+- Custom error types
+- Validation context
+
+Besides this, the design philosophy was to not add a series of default validations (e.g. `isUuid()` or `isEmail()`).
+
+This projects aim is to add these features.
+
+##### License
+
+[MIT License](https://github.com/konfork/konfork/blob/master/LICENSE)
