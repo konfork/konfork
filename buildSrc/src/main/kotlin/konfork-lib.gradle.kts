@@ -2,13 +2,14 @@ plugins {
     kotlin("multiplatform")
     id("maven-publish")
     id("signing")
-    id("com.palantir.git-version")
+    id("java-library")
+    id("org.jetbrains.dokka")
 }
 
-val gitVersion: groovy.lang.Closure<String> by extra
+project.group = rootProject.group
+project.version = rootProject.version
+
 kotlin {
-    group = "io.github.konfork"
-    version = gitVersion()
     jvm {
         compilations.all {
             kotlinOptions.jvmTarget = "1.8"
@@ -31,11 +32,63 @@ kotlin {
     }
 }
 
+tasks {
+    val versionValidation by registering {
+        doLast {
+            println(project)
+            val matches = project.version.toString().matches(Regex("^\\d+\\.\\d+\\.\\d+$"))
+            if (!matches) throw IllegalArgumentException("Not a valid version: ${project.version}")
+        }
+    }
+    publish {
+        dependsOn(versionValidation)
+    }
+}
+
+val dokkaHtml by tasks.getting(org.jetbrains.dokka.gradle.DokkaTask::class)
+
+val javadocJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
+    dependsOn(dokkaHtml)
+    archiveClassifier.set("javadoc")
+    from(dokkaHtml.outputDirectory)
+}
+
 configure<PublishingExtension> {
+    publications.withType<MavenPublication> {
+        artifact(javadocJar)
+
+        pom {
+            val projectGitUrl = "https://github.com/konfork/konfork"
+            name.set(rootProject.name)
+            description.set("Declarative validations for Kotlin")
+            url.set(projectGitUrl)
+            inceptionYear.set("2022")
+            licenses {
+                license {
+                    name.set("MIT")
+                    url.set("https://opensource.org/licenses/MIT")
+                }
+            }
+            developers {
+                developer {
+                    name.set("Geert Mulders")
+                }
+            }
+            issueManagement {
+                system.set("GitHub")
+                url.set("$projectGitUrl/issues")
+            }
+            scm {
+                connection.set("scm:git:$projectGitUrl")
+                developerConnection.set("scm:git:$projectGitUrl")
+                url.set(projectGitUrl)
+            }
+        }
+    }
     repositories {
         maven {
             name = "OSSRH"
-            setUrl("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+            setUrl("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2")
             credentials {
                 username = System.getenv("OSSRH_USER") ?: return@credentials// throw IllegalArgumentException("No username on environment")
                 password = System.getenv("OSSRH_PASSWORD") ?: return@credentials// throw IllegalArgumentException("No password on environment")
