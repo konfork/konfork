@@ -25,6 +25,35 @@ val validateUser = Validation<UserProfile> {
 }
 ```
 
+## Usage
+
+Note that this is a newly forked project. Because of this I expect the API to be unstable the first couple of versions.
+
+### Setup
+
+For multiplatform projects:
+
+```
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation("io.github.konfork:konfork-core:0.0.1")
+            }
+        }
+    }
+}
+```
+
+For jvm-only projects add:
+
+```
+dependencies {
+    implementation("io.github.konfork:konfork-core-jvm:0.0.1")
+}
+```
+
+
 ## About
 Konfork is a fork of [Konform](https://www.konform.io). While Konform is an excellent project there were two big
 features missing:
