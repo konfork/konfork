@@ -31,12 +31,36 @@ sealed class ValidationResult<out E, out T> {
     abstract operator fun get(vararg propertyPath: Any): List<E>?
 
     fun <R> map(transform: (T) -> R): ValidationResult<E, R> =
-        flatMap { flatMap { Valid(transform(it)) } }
+        flatMap { Valid(transform(it)) }
+
+    internal fun mapErrorKey(keyTransform: (String) -> String): ValidationResult<E, T> =
+        when (this) {
+            is Valid -> this
+            is Invalid -> Invalid(internalErrors.mapKeys { (key, _) -> keyTransform(key) })
+        }
 }
+
+inline fun <E, T, U> ValidationResult<E, T>.flatMap(f: (T) -> ValidationResult<E, U>): ValidationResult<E, U> =
+    when (this) {
+        is Invalid -> this
+        is Valid -> f(value)
+    }
+
+internal fun  <E, T> ValidationResult<E, T>.combineWith(other: ValidationResult<E, T>): ValidationResult<E, T> =
+    when (this) {
+        is Valid -> other
+        is Invalid -> when (other) {
+            is Valid -> this
+            is Invalid ->
+                Invalid(combineErrors(internalErrors, other.internalErrors))
+        }
+    }
 
 data class Invalid<out E>(
     internal val internalErrors: Map<String, List<E>>,
 ) : ValidationResult<E, Nothing>() {
+
+    internal constructor(e: E) : this(mapOf("" to listOf(e)))
 
     override fun get(vararg propertyPath: Any): List<E>? =
         internalErrors[propertyPath.joinToString("", transform = ::toPathSegment)]
@@ -68,8 +92,8 @@ data class Valid<out E, out T>(val value: T) : ValidationResult<E, T>() {
         get() = DefaultValidationErrors(emptyList())
 }
 
-inline fun <A, B, C> ValidationResult<A, B>.flatMap(f: (B) -> ValidationResult<A, C>): ValidationResult<A, C> =
-    when (this) {
-        is Invalid -> this
-        is Valid -> f(this.value)
-    }
+private fun <E> combineErrors(left: Map<String, List<E>>, right: Map<String, List<E>>) =
+    (left.toList() + right.toList())
+        .groupBy({ it.first }, { it.second })
+        .mapValues { (_, values) -> values.flatten() }
+

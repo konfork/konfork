@@ -1,6 +1,6 @@
 package io.github.konfork.core
 
-import io.github.konfork.core.jsonschema.maxLength
+import io.github.konfork.core.validators.maxLength
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

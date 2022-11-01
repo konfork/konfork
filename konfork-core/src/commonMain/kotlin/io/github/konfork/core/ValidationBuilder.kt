@@ -16,8 +16,8 @@ import kotlin.reflect.KProperty1
 private annotation class ValidationScope
 
 @ValidationScope
-abstract class ValidationBuilder<C, T, E> : ComposableBuilder<C, T, E> {
-    abstract override fun build(): Validation<C, T, E>
+abstract class ValidationBuilder<C, T, E> {
+    abstract fun build(): Validation<C, T, E>
 
     abstract fun addConstraint(hint: HintBuilder<C, T, E>, vararg values: Any, test: C.(T) -> Boolean): ConstraintBuilder<C, T, E>
 
@@ -47,13 +47,13 @@ abstract class ValidationBuilder<C, T, E> : ComposableBuilder<C, T, E> {
     infix fun <R : Any> KFunction1<T, R?>.ifPresent(init: ValidationBuilder<C, R, E>.() -> Unit) = ifPresent(this.name, this, init)
 
     internal abstract fun <R : Any> required(name: String, hint: HintBuilder<C, R?, E>, mapFn: (T) -> R?, init: ValidationBuilder<C, R, E>.() -> Unit): ConstraintBuilder<C, R?, E>
-    infix fun <R : Any> KProperty1<T, R?>.required(hintedBuilder: HintedRequiredBuilder<C, R, E>): ConstraintBuilder<C, R?, E> =
+    infix fun <R : Any> KProperty1<T, R?>.required(hintedBuilder: HintedValidationBuilder<C, R, E>): ConstraintBuilder<C, R?, E> =
         required(this.name, hintedBuilder.hint, this, hintedBuilder.init)
-    infix fun <R : Any> KFunction1<T, R?>.required(hintedBuilder: HintedRequiredBuilder<C, R, E>): ConstraintBuilder<C, R?, E> =
+    infix fun <R : Any> KFunction1<T, R?>.required(hintedBuilder: HintedValidationBuilder<C, R, E>): ConstraintBuilder<C, R?, E> =
         required(this.name, hintedBuilder.hint, this, hintedBuilder.init)
 
-    abstract fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: ValidationBuilder<C, R, E>.() -> Unit): HintedRequiredBuilder<C, R, E>
-    abstract fun <C, R> with(init: ValidationBuilder<C, R, String>.() -> Unit): HintedRequiredBuilder<C, R, String>
+    abstract fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: ValidationBuilder<C, R, E>.() -> Unit): HintedValidationBuilder<C, R, E>
+    abstract fun <C, R> with(init: ValidationBuilder<C, R, String>.() -> Unit): HintedValidationBuilder<C, R, String>
 
     abstract fun <S> run(validation: Validation<S, T, E>, map: (C) -> S)
     fun run(validation: Validation<C, T, E>) = run(validation, ::identity)
@@ -66,17 +66,6 @@ abstract class ValidationBuilder<C, T, E> : ComposableBuilder<C, T, E> {
 fun <C, T> ValidationBuilder<C, T, String>.addConstraint(hint: String, vararg values: Any, test: C.(T) -> Boolean): ConstraintBuilder<C, T, String> =
     addConstraint(stringHint(hint), *values) { test(it) }
 
-interface ConstraintBuilder<C, T, E> {
-    infix fun hint(hint: HintBuilder<C, T, E>) : ConstraintBuilder<C, T, E>
-}
-
-infix fun <C,T> ConstraintBuilder<C, T, String>.hint(hint: String) = hint(stringHint(hint))
-
-interface HintedRequiredBuilder<C, T, E> {
-    val hint: HintBuilder<C, T?, E>
-    val init: ValidationBuilder<C, T, E>.() -> Unit
-}
-
 fun <C, T : Any, E> ValidationBuilder<C, T?, E>.ifPresent(init: ValidationBuilder<C, T, E>.() -> Unit) {
     val builder = ValidationNodeBuilder<C, T, E>().also(init)
     add(OptionalValidationBuilder(builder))
@@ -86,7 +75,7 @@ fun <C, T : Any, E> ValidationBuilder<C, T?, E>.required(hint: HintBuilder<C, T?
     val builder = ValidationNodeBuilder<C, T, E>().also(init)
     val requiredValidationBuilder = RequiredValidationBuilder(hint, builder)
     add(requiredValidationBuilder)
-    return requiredValidationBuilder.requiredConstraintBuilder
+    return requiredValidationBuilder.constraintBuilder
 }
 
 @JvmName("onEachIterable")
@@ -108,16 +97,3 @@ fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEach(init: Validati
     @Suppress("UNCHECKED_CAST")
     add(MapValidationBuilder(builder) as ComposableBuilder<C, T, E>)
 }
-
-typealias HintArguments = List<Any>
-typealias HintBuilder<C, T, E> = C.(T, HintArguments) -> E
-
-fun <C, T> stringHint(template: String): HintBuilder<C, T, String> = { value, args ->
-    args
-        .map(Any::toString)
-        .foldIndexed(template.replace("{value}", value.toString())) { index, acc, arg ->
-            acc.replace("{$index}", arg)
-        }
-}
-
-fun <C, T, E> staticHint(e: E): HintBuilder<C, T, E> = { _, _ -> e }

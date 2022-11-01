@@ -2,9 +2,9 @@ package io.github.konfork.core
 
 import io.github.konfork.core.ValidationBuilderTest.Errors.ONE
 import io.github.konfork.core.ValidationBuilderTest.Errors.TWO
-import io.github.konfork.core.jsonschema.minItems
-import io.github.konfork.core.jsonschema.minLength
-import io.github.konfork.core.jsonschema.pattern
+import io.github.konfork.core.validators.minItems
+import io.github.konfork.core.validators.minLength
+import io.github.konfork.core.validators.pattern
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -356,8 +356,9 @@ class ValidationBuilderTest {
             "user2" to Register(email = "a")
         ))
             .let {
-                assertEquals(0, countErrors(mapValidation(it), Data::registrations, "user1", Register::email))
-                assertEquals(1, countErrors(mapValidation(it), Data::registrations, "user2", Register::email))
+                val r = mapValidation(it)
+                assertEquals(0, countErrors(r, Data::registrations, "user1", Register::email))
+                assertEquals(1, countErrors(r, Data::registrations, "user2", Register::email))
             }
     }
 

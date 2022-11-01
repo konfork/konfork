@@ -1,8 +1,8 @@
 package io.github.konfork.core
 
-import io.github.konfork.core.jsonschema.maxLength
-import io.github.konfork.core.jsonschema.minLength
-import io.github.konfork.core.jsonschema.pattern
+import io.github.konfork.core.validators.maxLength
+import io.github.konfork.core.validators.minLength
+import io.github.konfork.core.validators.pattern
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

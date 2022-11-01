@@ -1,6 +1,6 @@
 package io.github.konfork.core
 
-import io.github.konfork.core.jsonschema.*
+import io.github.konfork.core.validators.*
 import io.github.konfork.core.JSONSchemaStyleConstraintsTest.TCPPacket.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
