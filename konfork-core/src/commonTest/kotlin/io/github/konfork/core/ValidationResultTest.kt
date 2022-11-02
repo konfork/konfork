@@ -26,22 +26,22 @@ class ValidationResultTest {
             }
         }
 
-        val result = validation(Person("", addresses = listOf(Address(City("", "")))))
-        assertEquals(3, result.errors.size)
-        val (firstError, secondError, thirdError) = result.errors
+        val person = Person("", addresses = listOf(Address(City("", ""))))
+        val result = assertThat(validation, person)
+            .isInvalid()
+            .withErrorCount(3)
+            .subject
 
-        assertEquals(".name", firstError.dataPath)
-        assertEquals("must have at least 1 characters", firstError.message)
+        val (first, second) = result.errors
 
-        assertEquals(".addresses[0].city.postalCode", secondError.dataPath)
-        assertEquals("must have at least 4 characters", secondError.message)
+        assertEquals(".name", first.propertyPath)
+        assertEquals(listOf("must have at least 1 characters"), first.errors)
 
-        assertEquals(".addresses[0].city.postalCode", thirdError.dataPath)
-        assertEquals("must be a four or five digit number", thirdError.message)
+        assertEquals(".addresses[0].city.postalCode", second.propertyPath)
+        assertEquals(listOf("must have at least 4 characters", "must be a four or five digit number"), second.errors)
     }
 
     private data class Person(val name: String, val addresses: List<Address>)
     private data class Address(val city: City)
     private data class City(val postalCode: String, val cityName: String)
 }
-

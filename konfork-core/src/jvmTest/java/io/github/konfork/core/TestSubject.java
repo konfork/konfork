@@ -40,5 +40,4 @@ public class TestSubject {
     public String notNullString() {
         return "bla";
     }
-
 }

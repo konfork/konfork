@@ -4,20 +4,22 @@ import io.github.konfork.core.ConstraintBuilder
 import io.github.konfork.core.HintBuilder
 import io.github.konfork.core.ValidationBuilder
 import io.github.konfork.core.stringHint
-import kotlin.math.roundToInt
+import kotlin.math.abs
+import kotlin.math.roundToLong
 
-fun <C, T : Number, E> ValidationBuilder<C, T, E>.multipleOf(hint: HintBuilder<C, T, E>, factor: Number): ConstraintBuilder<C, T, E> {
+fun <C, T : Number, E> ValidationBuilder<C, T, E>.multipleOf(hint: HintBuilder<C, T, E>, factor: Number, epsilon: Double): ConstraintBuilder<C, T, E> {
     val factorAsDouble = factor.toDouble()
     require(factorAsDouble > 0) { "multipleOf requires the factor to be strictly larger than 0" }
+    require(epsilon >= 0) { "multipleOf requires the epsilon to be 0 or larger than 0" }
     return addConstraint(hint, factor) {
         val division = it.toDouble() / factorAsDouble
-        division.compareTo(division.roundToInt()) == 0
+        val diff = division - division.roundToLong()
+        abs(diff) <= epsilon
     }
 }
 
-fun <C, T : Number> ValidationBuilder<C, T, String>.multipleOf(factor: Number): ConstraintBuilder<C, T, String> =
-    multipleOf(stringHint("must be a multiple of '{0}'"), factor)
-
+fun <C, T : Number> ValidationBuilder<C, T, String>.multipleOf(factor: Number, epsilon: Double): ConstraintBuilder<C, T, String> =
+    multipleOf(stringHint("must be a multiple of '{0}'"), factor, epsilon)
 
 fun <C, T : Number, E> ValidationBuilder<C, T, E>.maximum(hint: HintBuilder<C, T, E>, maximumInclusive: Number) =
     addConstraint(hint, maximumInclusive) { it.toDouble() <= maximumInclusive.toDouble() }

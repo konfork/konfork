@@ -65,6 +65,15 @@ Besides this, the design philosophy was to not add a series of default validatio
 
 This projects aim is to add these features.
 
+## TODO
+
+- [ ] Add multipleOf validations for Long and Int using modulo
+- [ ] Add String validations: isDate, isEmail, lengthIn (range), URL, checkdigit (EAN, mod10, mod13, luhn, ISBN,
+      Verhoeff)
+- [ ] Add Number validations: inRange
+- [ ] Add separate module with password strength validation nbvcxz
+- [ ] Add separate module for utils for interoperability with Arrow
+
 ##### License
 
 [MIT License](https://github.com/konfork/konfork/blob/master/LICENSE)

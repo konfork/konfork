@@ -6,7 +6,7 @@ import io.github.konfork.core.stringHint
 import kotlin.jvm.JvmName
 
 inline fun <C, reified T, E> ValidationBuilder<C, *, E>.type(noinline hint: HintBuilder<C, Any?, E>) =
-    addConstraint(hint, T::class) { it is T }
+    addConstraint(hint, T::class.toString()) { it is T }
 
 @JvmName("simpleType")
 inline fun <reified T> ValidationBuilder<Unit, *, String>.type() =

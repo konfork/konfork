@@ -3,7 +3,6 @@ package io.github.konfork.core
 import io.github.konfork.core.validators.*
 import kotlin.collections.Map.Entry
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class ReadmeExampleTest {
 
@@ -14,7 +13,7 @@ class ReadmeExampleTest {
             val age: Int?
         )
 
-        val validateUser = Validation<UserProfile> {
+        val validateUser = Validation {
             UserProfile::fullName {
                 minLength(2)
                 maxLength(100)
@@ -27,11 +26,12 @@ class ReadmeExampleTest {
         }
 
         val invalidUser = UserProfile("A", -1)
-        val validationResult = validateUser(invalidUser)
 
-        assertEquals(2, validationResult.errors.size)
-        assertEquals("must have at least 2 characters", validationResult.errors.first().message)
-        assertEquals("must be at least '0'", validationResult.errors.last().message)
+        assertThat(validateUser, invalidUser)
+            .isInvalid()
+            .withErrorCount(2)
+            .withHint("must have at least 2 characters", UserProfile::fullName)
+            .withHint("must be at least '0'", UserProfile::age)
     }
 
     @Test
@@ -98,7 +98,8 @@ class ReadmeExampleTest {
             )
         )
 
-        assertEquals(Valid(validEvent), validateEvent(validEvent))
+        assertThat(validateEvent, validEvent)
+            .isValid()
 
 
         val invalidEvent = Event(
@@ -111,8 +112,11 @@ class ReadmeExampleTest {
             )
         )
 
-        assertEquals(3, countFieldsWithErrors(validateEvent(invalidEvent)))
-        assertEquals("Attendees must be 18 years or older", validateEvent(invalidEvent)[Event::attendees, 0, Person::age]!![0])
+        assertThat(validateEvent, invalidEvent)
+            .isInvalid()
+            .withErrorCount(3)
+            .withHint("Organizers must have a BigCorp email address", Event::organizer, Person::email)
+            .withHint("Attendees must be 18 years or older", Event::attendees, 0, Person::age)
+            .withHint("must be at least '0.01'", Event::ticketPrices, "we-pay-you")
     }
-
 }

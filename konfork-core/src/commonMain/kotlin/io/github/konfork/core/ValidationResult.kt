@@ -1,36 +1,17 @@
 package io.github.konfork.core
 
+import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
 
-interface ValidationError<out E> {
-    val dataPath: String
-    val message: E
-}
-
-internal data class PropertyValidationError<E>(
-    override val dataPath: String,
-    override val message: E,
-) : ValidationError<E> {
-    override fun toString(): String {
-        return "ValidationError(dataPath=$dataPath, message=$message)"
-    }
-}
-
-interface ValidationErrors<out E> : List<ValidationError<E>>
-
-internal object NoValidationErrors : ValidationErrors<Nothing>, List<ValidationError<Nothing>> by emptyList()
-internal class DefaultValidationErrors<E>(private val errors: List<ValidationError<E>>) : ValidationErrors<E>, List<ValidationError<E>> by errors {
-    override fun toString(): String {
-        return errors.toString()
-    }
+data class ValidationErrors<out E>(
+    val propertyPath: String,
+    val errors: List<E>,
+) {
+    override fun toString(): String = "ValidationError(dataPath=$propertyPath, errors=$errors)"
 }
 
 sealed class ValidationResult<out E, out T> {
-    abstract val errors: ValidationErrors<E>
-
-    abstract operator fun get(vararg propertyPath: Any): List<E>?
-
-    fun <R> map(transform: (T) -> R): ValidationResult<E, R> =
+    internal fun <R> map(transform: (T) -> R): ValidationResult<E, R> =
         flatMap { Valid(transform(it)) }
 
     internal fun mapErrorKey(keyTransform: (String) -> String): ValidationResult<E, T> =
@@ -40,7 +21,7 @@ sealed class ValidationResult<out E, out T> {
         }
 }
 
-inline fun <E, T, U> ValidationResult<E, T>.flatMap(f: (T) -> ValidationResult<E, U>): ValidationResult<E, U> =
+internal inline fun <E, T, U> ValidationResult<E, T>.flatMap(f: (T) -> ValidationResult<E, U>): ValidationResult<E, U> =
     when (this) {
         is Invalid -> this
         is Valid -> f(value)
@@ -62,23 +43,25 @@ data class Invalid<out E>(
 
     internal constructor(e: E) : this(mapOf("" to listOf(e)))
 
-    override fun get(vararg propertyPath: Any): List<E>? =
-        internalErrors[propertyPath.joinToString("", transform = ::toPathSegment)]
+    fun get(vararg path: Any): ValidationErrors<E> =
+        propertyPath(path)
+            .let { ValidationErrors(it, internalErrors[it].orEmpty()) }
 
-    private fun toPathSegment(it: Any): String {
-        return when (it) {
+    private fun propertyPath(path: Array<out Any>) =
+        path.joinToString("", transform = ::toPathSegment)
+
+    private fun toPathSegment(it: Any): String =
+        when (it) {
+            is KFunction1<*, *> -> ".${it.name}"
             is KProperty1<*, *> -> ".${it.name}"
             is Int -> "[$it]"
             else -> ".$it"
         }
-    }
 
-    override val errors: ValidationErrors<E> by lazy {
-        DefaultValidationErrors(
-            internalErrors.flatMap { (path, errors ) ->
-                errors.map { PropertyValidationError(path, it) }
-            }
-        )
+    val errors: List<ValidationErrors<E>> by lazy {
+        internalErrors.map { (path, errors ) ->
+            ValidationErrors(path, errors)
+        }
     }
 
     override fun toString(): String {
@@ -86,14 +69,9 @@ data class Invalid<out E>(
     }
 }
 
-data class Valid<out E, out T>(val value: T) : ValidationResult<E, T>() {
-    override fun get(vararg propertyPath: Any): List<E>? = null
-    override val errors: ValidationErrors<E>
-        get() = DefaultValidationErrors(emptyList())
-}
+data class Valid<out T>(val value: T) : ValidationResult<Nothing, T>()
 
 private fun <E> combineErrors(left: Map<String, List<E>>, right: Map<String, List<E>>) =
     (left.toList() + right.toList())
         .groupBy({ it.first }, { it.second })
         .mapValues { (_, values) -> values.flatten() }
-
