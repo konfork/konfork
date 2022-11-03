@@ -66,8 +66,19 @@ internal data class ConstraintValidation<C, T, E>(
         }
 }
 
-internal class ValidationNode<C, T, E>(
+internal class LazyValidationNode<C, T, E>(
     private val subValidations: List<Validation<C, T, E>>
+) : Validation<C, T, E> {
+    override fun validate(context: C, value: T): ValidationResult<E, T> =
+        subValidations
+            .asSequence()
+            .map { it.validate(context, value) }
+            .filterIsInstance<Invalid<E>>()
+            .firstOrNull() ?: Valid(value)
+}
+
+internal class ValidationNode<C, T, E>(
+    internal val subValidations: List<Validation<C, T, E>>
 ) : Validation<C, T, E> {
     override fun validate(context: C, value: T): ValidationResult<E, T> =
         subValidations.fold(Valid(value)) { acc: ValidationResult<E, T>, validation ->

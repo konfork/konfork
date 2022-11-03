@@ -21,8 +21,18 @@ abstract class ValidationBuilder<C, T, E> {
 
     abstract fun addConstraint(hint: HintBuilder<C, T, E>, vararg values: Any, test: C.(T) -> Boolean): ConstraintBuilder<C, T, E>
 
-    abstract operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<C, R, E>.() -> Unit)
-    abstract operator fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<C, R, E>.() -> Unit)
+    internal abstract fun <R> property(name: String, mapFn: (T) -> R, init: ValidationBuilder<C, R, E>.() -> Unit)
+    operator fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<C, R, E>.() -> Unit) = property(name, this, init)
+    operator fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<C, R, E>.() -> Unit) = property(name, this, init)
+
+    infix fun <R> KProperty1<T, R>.eager(init: ValidationBuilder<C, R, E>.() -> Unit) = this(init)
+    infix fun <R> KFunction1<T, R>.eager(init: ValidationBuilder<C, R, E>.() -> Unit) = this(init)
+    abstract fun eager(init: ValidationBuilder<C, T, E>.() -> Unit)
+
+    internal abstract fun <R> lazy(name: String, mapFn: (T) -> R, init: ValidationBuilder<C, R, E>.() -> Unit)
+    infix fun <R> KProperty1<T, R>.lazy(init: ValidationBuilder<C, R, E>.() -> Unit) = lazy(name, this, init)
+    infix fun <R> KFunction1<T, R>.lazy(init: ValidationBuilder<C, R, E>.() -> Unit) = lazy(name, this, init)
+    abstract fun lazy(init: ValidationBuilder<C, T, E>.() -> Unit)
 
     internal abstract fun <R> onEachIterable(name: String, mapFn: (T) -> Iterable<R>, init: ValidationBuilder<C, R, E>.() -> Unit)
     @JvmName("onEachIterable")
@@ -73,6 +83,7 @@ abstract class ValidationBuilder<C, T, E> {
     internal abstract fun add(builder: ComposableBuilder<C, T, E>)
 
     abstract val <R> KProperty1<T, R>.has: ValidationBuilder<C, R, E>
+    abstract val <R> KFunction1<T, R>.has: ValidationBuilder<C, R, E>
 }
 
 fun <C, T> ValidationBuilder<C, T, String>.addConstraint(hint: String, vararg values: Any, test: C.(T) -> Boolean): ConstraintBuilder<C, T, String> =
@@ -109,3 +120,18 @@ fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEach(init: Validati
     @Suppress("UNCHECKED_CAST")
     add(MapValidationBuilder(builder) as ComposableBuilder<C, T, E>)
 }
+
+@JvmName("onEachMapValue")
+fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEachValue(init: ValidationBuilder<C, V, E>.() -> Unit) {
+    val builder = ValidationNodeBuilder<C, V, E>().also(init)
+    @Suppress("UNCHECKED_CAST")
+    add(MapValueValidationBuilder<C, K, V, E>(builder) as ComposableBuilder<C, T, E>)
+}
+
+@JvmName("onEachMapKey")
+fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEachKey(init: ValidationBuilder<C, K, E>.() -> Unit) {
+    val builder = ValidationNodeBuilder<C, K, E>().also(init)
+    @Suppress("UNCHECKED_CAST")
+    add(MapKeyValidationBuilder<C, K, V, E>(builder) as ComposableBuilder<C, T, E>)
+}
+

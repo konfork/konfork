@@ -98,6 +98,68 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun lazySubValidation() {
+        val validation = Validation {
+            Register::password {
+                minLength(8)
+                lazy {
+                    minLength(8)
+                    containsANumber()
+                }
+            }
+        }
+
+        assertThat(validation, Register(password = "pass"))
+            .isInvalid()
+            .withErrorCount(2)
+    }
+
+    @Test
+    fun lazyPropertyValidation() {
+        val validation = Validation {
+            Register::password lazy {
+                minLength(8)
+                containsANumber()
+            }
+        }
+
+        assertThat(validation, Register(password = "pass"))
+            .isInvalid()
+            .withErrorCount(1)
+    }
+
+    @Test
+    fun eagerSubValidation() {
+        val validation = Validation {
+            Register::password {
+                minLength(8)
+                eager {
+                    minLength(8)
+                    containsANumber()
+                }
+            }
+        }
+
+        assertThat(validation, Register(password = "pass"))
+            .isInvalid()
+            .withErrorCount(3)
+    }
+
+    @Test
+    fun eagerPropertyValidation() {
+        val validation = Validation {
+            Register::password eager {
+                minLength(8)
+                containsANumber()
+            }
+        }
+
+        assertThat(validation, Register(password = "pass"))
+            .isInvalid()
+            .withErrorCount(2)
+    }
+
+    @Test
     fun validatingMultipleFields() {
         val validation = Validation {
             Register::password {

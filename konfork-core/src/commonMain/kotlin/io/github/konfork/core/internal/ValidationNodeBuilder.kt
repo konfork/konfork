@@ -8,17 +8,23 @@ import kotlin.reflect.KProperty1
 internal class ValidationNodeBuilder<C, T, E> : ValidationBuilder<C, T, E>(), ComposableBuilder<C, T, E> {
     private val subBuilders = mutableListOf<ComposableBuilder<C, T, E>>()
 
-    override fun build(): Validation<C, T, E> =
+    override fun build(): ValidationNode<C, T, E> =
         ValidationNode(subBuilders.map(ComposableBuilder<C, T, E>::build))
 
     override fun addConstraint(hint: HintBuilder<C, T, E>, vararg values: Any, test: (C, T) -> Boolean): ConstraintBuilder<C, T, E> =
         ConstraintValidationBuilder(hint, values.toList(), test).also(::add)
 
-    override fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<C, R, E>.() -> Unit) =
-        add(PropertyValidationBuilder(createBuilder(init), name, this))
+    override fun <R> property(name: String, mapFn: (T) -> R, init: ValidationBuilder<C, R, E>.() -> Unit) =
+        add(PropertyValidationBuilder(createBuilder(init), name, mapFn))
 
-    override fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<C, R, E>.() -> Unit) =
-        add(PropertyValidationBuilder(createBuilder(init), name, this))
+    override fun eager(init: ValidationBuilder<C, T, E>.() -> Unit) =
+        add(createBuilder(init))
+
+    override fun <R> lazy(name: String, mapFn: (T) -> R, init: ValidationBuilder<C, R, E>.() -> Unit) =
+        add(PropertyValidationBuilder(LazyValidationBuilder(createBuilder(init)), name, mapFn))
+
+    override fun lazy(init: ValidationBuilder<C, T, E>.() -> Unit) =
+        add(LazyValidationBuilder(createBuilder(init)))
 
     override fun <R> onEachIterable(name: String, mapFn: (T) -> Iterable<R>, init: ValidationBuilder<C, R, E>.() -> Unit) =
         add(PropertyValidationBuilder(IterableValidationBuilder(createBuilder(init)), name, mapFn))
@@ -53,6 +59,10 @@ internal class ValidationNodeBuilder<C, T, E> : ValidationBuilder<C, T, E>(), Co
         add(PrebuildValidationBuilder(validation, map))
 
     override val <R> KProperty1<T, R>.has: ValidationBuilder<C, R, E>
+        get() = ValidationNodeBuilder<C, R, E>()
+            .also { add(PropertyValidationBuilder(it, this.name,this)) }
+
+    override val <R> KFunction1<T, R>.has: ValidationBuilder<C, R, E>
         get() = ValidationNodeBuilder<C, R, E>()
             .also { add(PropertyValidationBuilder(it, this.name,this)) }
 
