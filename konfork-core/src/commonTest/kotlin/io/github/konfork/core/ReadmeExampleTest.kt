@@ -44,7 +44,7 @@ class ReadmeExampleTest {
             val ticketPrices: Map<String, Double?>
         )
 
-        val validateEvent = Validation<Event> {
+        val validateEvent = Validation {
             Event::organizer {
                 // even though the email is nullable you can force it to be set in the validation
                 Person::email required with {

@@ -53,6 +53,36 @@ class ValidationBuilderJavaTest {
     }
 
     @Test
+    fun validateMapValue() {
+        val validation = Validation {
+            TestSubject::stringMap onEachValue {
+                maxLength(6)
+            }
+        }
+
+        assertThat(validation, TestSubject())
+            .isInvalid()
+            .withErrorCount(2)
+            .withHint("must have at most 6 characters", TestSubject::stringMap, "imagination")
+            .withHint("must have at most 6 characters", TestSubject::stringMap, "everywhere")
+    }
+
+    @Test
+    fun validateMapKey() {
+        val validation = Validation {
+            TestSubject::stringMap onEachKey {
+                maxLength(6)
+            }
+        }
+
+        assertThat(validation, TestSubject())
+            .isInvalid()
+            .withErrorCount(2)
+            .withHint("must have at most 6 characters", TestSubject::stringMap, "imagination#key")
+            .withHint("must have at most 6 characters", TestSubject::stringMap, "everywhere#key")
+    }
+
+    @Test
     fun validateIfPresent() {
         val validationNull = Validation {
             TestSubject::nullString ifPresent {

@@ -29,6 +29,12 @@ internal class ValidationNodeBuilder<C, T, E> : ValidationBuilder<C, T, E>(), Co
     override fun <K, V> onEachMap(name: String, mapFn: (T) -> Map<K, V>, init: ValidationBuilder<C, Entry<K, V>, E>.() -> Unit) =
         add(PropertyValidationBuilder(MapValidationBuilder(createBuilder(init)), name, mapFn))
 
+    override fun <K, V> onEachMapValue(name: String, mapFn: (T) -> Map<K, V>, init: ValidationBuilder<C, V, E>.() -> Unit) =
+        add(PropertyValidationBuilder(MapValueValidationBuilder(createBuilder(init)), name, mapFn))
+
+    override fun <K, V> onEachMapKey(name: String, mapFn: (T) -> Map<K, V>, init: ValidationBuilder<C, K, E>.() -> Unit) =
+        add(PropertyValidationBuilder(MapKeyValidationBuilder(createBuilder(init)), name, mapFn))
+
     override fun <R : Any> ifPresent(name: String, mapFn: (T) -> R?, init: ValidationBuilder<C, R, E>.() -> Unit) =
         add(PropertyValidationBuilder(OptionalValidationBuilder(createBuilder(init)), name, mapFn))
 

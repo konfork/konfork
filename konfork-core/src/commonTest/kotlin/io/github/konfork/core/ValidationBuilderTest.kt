@@ -378,12 +378,9 @@ class ValidationBuilderTest {
     }
 
     @Test
-    fun validateHashMaps() {
-
-        data class Data(val registrations: Map<String, Register> = emptyMap())
-
+    fun validateMaps() {
         val validation = Validation {
-            Data::registrations onEach {
+            MapData::registrations onEach {
                 Map.Entry<String, Register>::value {
                     Register::email {
                         minLength(2)
@@ -392,18 +389,18 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, Data())
+        assertThat(validation, MapData())
             .isValid()
 
-        val data = Data(registrations = mapOf("user1" to Register(email = "valid"), "user2" to Register(email = "a")))
+        val data = MapData(mapOf("user1" to Register(email = "valid"), "user2" to Register(email = "a")))
         assertThat(validation, data)
             .isInvalid()
-            .withErrorCount(0, Data::registrations, "user1", Register::email)
-            .withErrorCount(1, Data::registrations, "user2", Register::email)
+            .withErrorCount(0, MapData::registrations, "user1", Register::email)
+            .withErrorCount(1, MapData::registrations, "user2", Register::email)
     }
 
     @Test
-    fun validateNullableHashMaps() {
+    fun validateNullableMaps() {
 
         data class Data(val registrations: Map<String, Register>? = null)
 
@@ -432,14 +429,52 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun validateMapValue() {
+        val validation = Validation {
+            MapData::registrations onEachValue {
+                Register::email {
+                    minLength(2)
+                }
+            }
+        }
+
+        assertThat(validation, MapData())
+            .isValid()
+
+        val data = MapData(mapOf("user1" to Register(email = "valid"), "user2" to Register(email = "a")))
+        assertThat(validation, data)
+            .isInvalid()
+            .withErrorCount(0, MapData::registrations, "user1", Register::email)
+            .withErrorCount(1, MapData::registrations, "user2", Register::email)
+    }
+
+    @Test
+    fun validateMapKey() {
+        val validation = Validation {
+            MapData::registrations onEachKey {
+                minLength(2)
+            }
+        }
+
+        assertThat(validation, MapData())
+            .isValid()
+
+        val data = MapData(mapOf("user1" to Register(email = "valid"), "u" to Register(email = "a")))
+        assertThat(validation, data)
+            .isInvalid()
+            .withErrorCount(0, MapData::registrations, "user1")
+            .withErrorCount(1, MapData::registrations, "u#key")
+    }
+
+    @Test
     fun composeValidations() {
-        val addressValidation = Validation<Address> {
+        val addressValidation = Validation {
             Address::address {
                 minLength(1)
             }
         }
 
-        val validation = Validation<Register> {
+        val validation = Validation {
             Register::home ifPresent {
                 run(addressValidation)
             }
@@ -485,6 +520,8 @@ class ValidationBuilderTest {
             .withErrorCount(1, Register::password)
             .withHintMatches(".*8.*", Register::password)
     }
+
+    private data class MapData(val registrations: Map<String, Register> = emptyMap())
 
     enum class Errors { ONE, TWO, }
     private data class Register(val password: String = "", val email: String = "", val referredBy: String? = null, val home: Address? = null)

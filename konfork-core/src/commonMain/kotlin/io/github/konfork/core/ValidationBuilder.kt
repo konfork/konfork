@@ -42,6 +42,18 @@ abstract class ValidationBuilder<C, T, E> {
     @JvmName("onEachMap")
     infix fun <K, V> KFunction1<T, Map<K, V>>.onEach(init: ValidationBuilder<C, Map.Entry<K, V>, E>.() -> Unit) = onEachMap(this.name, this, init)
 
+    internal abstract fun <K, V> onEachMapValue(name: String, mapFn: (T) -> Map<K, V>, init: ValidationBuilder<C, V, E>.() -> Unit)
+    @JvmName("onEachMapValue")
+    infix fun <K, V> KProperty1<T, Map<K, V>>.onEachValue(init: ValidationBuilder<C, V, E>.() -> Unit) = onEachMapValue(this.name, this, init)
+    @JvmName("onEachMapValue")
+    infix fun <K, V> KFunction1<T, Map<K, V>>.onEachValue(init: ValidationBuilder<C, V, E>.() -> Unit) = onEachMapValue(this.name, this, init)
+
+    internal abstract fun <K, V> onEachMapKey(name: String, mapFn: (T) -> Map<K, V>, init: ValidationBuilder<C, K, E>.() -> Unit)
+    @JvmName("onEachMapKey")
+    infix fun <K, V> KProperty1<T, Map<K, V>>.onEachKey(init: ValidationBuilder<C, K, E>.() -> Unit) = onEachMapKey(this.name, this, init)
+    @JvmName("onEachMapKey")
+    infix fun <K, V> KFunction1<T, Map<K, V>>.onEachKey(init: ValidationBuilder<C, K, E>.() -> Unit) = onEachMapKey(this.name, this, init)
+
     internal abstract fun <R : Any> ifPresent(name: String, mapFn: (T) -> R?, init: ValidationBuilder<C, R, E>.() -> Unit)
     infix fun <R : Any> KProperty1<T, R?>.ifPresent(init: ValidationBuilder<C, R, E>.() -> Unit) = ifPresent(this.name, this, init)
     infix fun <R : Any> KFunction1<T, R?>.ifPresent(init: ValidationBuilder<C, R, E>.() -> Unit) = ifPresent(this.name, this, init)

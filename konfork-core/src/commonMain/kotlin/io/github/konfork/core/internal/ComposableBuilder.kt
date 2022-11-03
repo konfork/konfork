@@ -46,6 +46,36 @@ internal class MapValidationBuilder<C, K, V, E>(
         )
 }
 
+internal class MapValueValidationBuilder<C, K, V, E>(
+    private val subBuilder: ComposableBuilder<C, V, E>,
+) : ComposableBuilder<C, Map<K, V>, E> {
+    override fun build(): Validation<C, Map<K, V>, E> =
+        MappedValidation(
+            OnEachValidation(
+                MappedValidation(subBuilder.build(), Map.Entry<K, V>::value, ::identity)
+            ) { entry, _, name ->
+                ".${entry.key.toString()}$name"
+            },
+            Map<K, V>::entries,
+            ::identity,
+        )
+}
+
+internal class MapKeyValidationBuilder<C, K, V, E>(
+    private val subBuilder: ComposableBuilder<C, K, E>,
+) : ComposableBuilder<C, Map<K, V>, E> {
+    override fun build(): Validation<C, Map<K, V>, E> =
+        MappedValidation(
+            OnEachValidation(
+                MappedValidation(subBuilder.build(), Map.Entry<K, V>::key) { "#key$it" }
+            ) { entry, _, name ->
+                ".${entry.key.toString()}$name"
+            },
+            Map<K, V>::entries,
+            ::identity,
+        )
+}
+
 internal class OptionalValidationBuilder<C, T : Any, E>(
     private val subBuilder: ComposableBuilder<C, T, E>,
 ) : ComposableBuilder<C, T?, E> {
