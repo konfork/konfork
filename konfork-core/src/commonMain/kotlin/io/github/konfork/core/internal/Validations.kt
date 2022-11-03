@@ -12,11 +12,11 @@ internal class MappedContextValidation<C, S, T, E>(
 
 internal class MappedValidation<C, T, V, E>(
     private val validation: Validation<C, V, E>,
-    private val name: String,
     private val mapFn: (T) -> V,
+    private val keyMapFn: (String) -> String,
 ) : Validation<C, T, E> {
     override fun validate(context: C, value: T): ValidationResult<E, T> =
-        validation(context, mapFn(value), value) { ".$name$it" }
+        validation(context, mapFn(value), value, keyMapFn)
 }
 
 internal class OptionalValidation<C, T : Any, E>(
@@ -40,33 +40,14 @@ internal class RequiredValidation<C, T: Any, E>(
     }
 }
 
-internal class IterableValidation<C, T, E>(
-    private val validation: Validation<C, T, E>
+internal open class OnEachValidation<C, T, E>(
+    private val validation: Validation<C, T, E>,
+    private val keyTransform: (T, Int, String) -> String,
 ) : Validation<C, Iterable<T>, E> {
     override fun validate(context: C, value: Iterable<T>): ValidationResult<E, Iterable<T>> =
         value.foldIndexed(Valid(value)) { index, acc: ValidationResult<E, Iterable<T>>, propertyValue ->
-            val result = validation(context, propertyValue, value) { "[$index]$it" }
-            acc.combineWith(result)
-        }
-}
-
-internal class ArrayValidation<C, T, E>(
-    private val validation: Validation<C, T, E>
-) : Validation<C, Array<T>, E> {
-    override fun validate(context: C, value: Array<T>): ValidationResult<E, Array<T>> =
-        value.foldIndexed(Valid(value)) { index, acc: ValidationResult<E, Array<T>>, propertyValue ->
-            val result = validation(context, propertyValue, value) { "[$index]$it" }
-            acc.combineWith(result)
-        }
-}
-
-internal class MapValidation<C, K, V, E>(
-    private val validation: Validation<C, Map.Entry<K, V>, E>
-) : Validation<C, Map<K, V>, E> {
-    override fun validate(context: C, value: Map<K, V>): ValidationResult<E, Map<K, V>> =
-        value.asIterable().fold(Valid(value)) { acc: ValidationResult<E, Map<K, V>>, entry ->
-            val result = validation(context, entry, value) {
-                ".${entry.key.toString()}${it.removePrefix(".value")}"  // TODO: Add onEachKey and onEachValue
+            val result = validation(context, propertyValue, value) {
+                keyTransform(propertyValue, index, it)
             }
             acc.combineWith(result)
         }

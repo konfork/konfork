@@ -15,26 +15,26 @@ internal class ValidationNodeBuilder<C, T, E> : ValidationBuilder<C, T, E>(), Co
         ConstraintValidationBuilder(hint, values.toList(), test).also(::add)
 
     override fun <R> KProperty1<T, R>.invoke(init: ValidationBuilder<C, R, E>.() -> Unit) =
-        add(MappedValidationBuilder(createBuilder(init), this.name,this))
+        add(PropertyValidationBuilder(createBuilder(init), name, this))
 
     override fun <R> KFunction1<T, R>.invoke(init: ValidationBuilder<C, R, E>.() -> Unit) =
-        add(MappedValidationBuilder(createBuilder(init), this.name,this))
+        add(PropertyValidationBuilder(createBuilder(init), name, this))
 
     override fun <R> onEachIterable(name: String, mapFn: (T) -> Iterable<R>, init: ValidationBuilder<C, R, E>.() -> Unit) =
-        add(MappedValidationBuilder(IterableValidationBuilder(createBuilder(init)), name, mapFn))
+        add(PropertyValidationBuilder(IterableValidationBuilder(createBuilder(init)), name, mapFn))
 
     override fun <R> onEachArray(name: String, mapFn: (T) -> Array<R>, init: ValidationBuilder<C, R, E>.() -> Unit) =
-        add(MappedValidationBuilder(ArrayValidationBuilder(createBuilder(init)), name, mapFn))
+        add(PropertyValidationBuilder(ArrayValidationBuilder(createBuilder(init)), name, mapFn))
 
     override fun <K, V> onEachMap(name: String, mapFn: (T) -> Map<K, V>, init: ValidationBuilder<C, Entry<K, V>, E>.() -> Unit) =
-        add(MappedValidationBuilder(MapValidationBuilder(createBuilder(init)), name, mapFn))
+        add(PropertyValidationBuilder(MapValidationBuilder(createBuilder(init)), name, mapFn))
 
     override fun <R : Any> ifPresent(name: String, mapFn: (T) -> R?, init: ValidationBuilder<C, R, E>.() -> Unit) =
-        add(MappedValidationBuilder(OptionalValidationBuilder(createBuilder(init)), name, mapFn))
+        add(PropertyValidationBuilder(OptionalValidationBuilder(createBuilder(init)), name, mapFn))
 
     override fun <R : Any> required(name: String, hint: HintBuilder<C, R?, E>, mapFn: (T) -> R?, init: ValidationBuilder<C, R, E>.() -> Unit): ConstraintBuilder<C, R?, E> =
         RequiredValidationBuilder(hint, createBuilder(init))
-            .also { add(MappedValidationBuilder(it, name, mapFn)) }
+            .also { add(PropertyValidationBuilder(it, name, mapFn)) }
             .constraintBuilder
 
     override fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: ValidationBuilder<C, R, E>.() -> Unit): HintedValidationBuilder<C, R, E> =
@@ -48,7 +48,7 @@ internal class ValidationNodeBuilder<C, T, E> : ValidationBuilder<C, T, E>(), Co
 
     override val <R> KProperty1<T, R>.has: ValidationBuilder<C, R, E>
         get() = ValidationNodeBuilder<C, R, E>()
-            .also { add(MappedValidationBuilder(it, this.name,this)) }
+            .also { add(PropertyValidationBuilder(it, this.name,this)) }
 
     private fun <D, S> createBuilder(init: ValidationBuilder<D, S, E>.() -> Unit) =
         ValidationNodeBuilder<D, S, E>().also(init)

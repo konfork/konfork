@@ -6,30 +6,44 @@ internal interface ComposableBuilder<C, T, E> {
     fun build(): Validation<C, T, E>
 }
 
-internal class MappedValidationBuilder<C, T, V, E>(
+internal class PropertyValidationBuilder<C, T, V, E>(
     private val subBuilder: ComposableBuilder<C, V, E>,
     private val name: String,
     private val mapFn: (T) -> V,
 ) : ComposableBuilder<C, T, E> {
-    override fun build(): Validation<C, T, E> = MappedValidation(subBuilder.build(), name, mapFn)
+    override fun build(): Validation<C, T, E> =
+        MappedValidation(subBuilder.build(), mapFn) { ".$name$it" }
 }
 
 internal class IterableValidationBuilder<C, T, E>(
     private val subBuilder: ComposableBuilder<C, T, E>,
 ) : ComposableBuilder<C, Iterable<T>, E> {
-    override fun build(): Validation<C, Iterable<T>, E> = IterableValidation(subBuilder.build())
+    override fun build(): Validation<C, Iterable<T>, E> =
+        OnEachValidation(subBuilder.build()) { _, index, name -> "[$index]$name" }
 }
 
 internal class ArrayValidationBuilder<C, T, E>(
     private val subBuilder: ComposableBuilder<C, T, E>,
 ) : ComposableBuilder<C, Array<T>, E> {
-    override fun build(): Validation<C, Array<T>, E> = ArrayValidation(subBuilder.build())
+    override fun build(): Validation<C, Array<T>, E> =
+        MappedValidation(
+            OnEachValidation(subBuilder.build()) { _, index, name -> "[$index]$name" },
+            Array<T>::toList,
+            ::identity,
+        )
 }
 
 internal class MapValidationBuilder<C, K, V, E>(
     private val subBuilder: ComposableBuilder<C, Map.Entry<K, V>, E>,
 ) : ComposableBuilder<C, Map<K, V>, E> {
-    override fun build(): Validation<C, Map<K, V>, E> = MapValidation(subBuilder.build())
+    override fun build(): Validation<C, Map<K, V>, E> =
+        MappedValidation(
+            OnEachValidation(subBuilder.build()) { entry, _, name ->
+                ".${entry.key.toString()}${name.removePrefix(".value")}"
+            },
+            Map<K, V>::entries,
+            ::identity,
+        )
 }
 
 internal class OptionalValidationBuilder<C, T : Any, E>(
