@@ -1,27 +1,20 @@
 package io.github.konfork.core
 
-import io.github.konfork.core.internal.ValidationNodeBuilder
 import kotlin.jvm.JvmName
 
 interface Validation<C, T, E> {
 
     companion object {
-        operator fun <C, T, E> invoke(init: ValidationBuilder<C, T, E>.() -> Unit): Validation<C, T, E> {
-            val builder = ValidationNodeBuilder<C, T, E>()
-            return builder.apply(init).build()
-        }
+        operator fun <C, T, E> invoke(init: ValidationBuilder<C, T, E>.() -> Unit): Validation<C, T, E> =
+            eagerBuilder(init).build()
 
         @JvmName("contextInvoke")
-        operator fun <C, T> invoke(init: ValidationBuilder<C, T, String>.() -> Unit): Validation<C, T, String> {
-            val builder = ValidationNodeBuilder<C, T, String>()
-            return builder.apply(init).build()
-        }
+        operator fun <C, T> invoke(init: ValidationBuilder<C, T, String>.() -> Unit): Validation<C, T, String> =
+            eagerBuilder(init).build()
 
         @JvmName("simpleInvoke")
-        operator fun <T> invoke(init: ValidationBuilder<Unit, T, String>.() -> Unit): Validation<Unit, T, String> {
-            val builder = ValidationNodeBuilder<Unit, T, String>()
-            return builder.apply(init).build()
-        }
+        operator fun <T> invoke(init: ValidationBuilder<Unit, T, String>.() -> Unit): Validation<Unit, T, String> =
+            eagerBuilder(init).build()
     }
 
     fun validate(context: C, value: T): ValidationResult<E, T>

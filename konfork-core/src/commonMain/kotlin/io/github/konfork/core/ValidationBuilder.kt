@@ -7,7 +7,7 @@ import io.github.konfork.core.internal.IterableValidationBuilder
 import io.github.konfork.core.internal.MapValidationBuilder
 import io.github.konfork.core.internal.OptionalValidationBuilder
 import io.github.konfork.core.internal.RequiredValidationBuilder
-import io.github.konfork.core.internal.ValidationNodeBuilder
+import io.github.konfork.core.internal.NodeValidationsBuilder
 import kotlin.jvm.JvmName
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
@@ -17,8 +17,6 @@ private annotation class ValidationScope
 
 @ValidationScope
 abstract class ValidationBuilder<C, T, E> {
-    abstract fun build(): Validation<C, T, E>
-
     abstract fun addConstraint(hint: HintBuilder<C, T, E>, vararg values: Any, test: C.(T) -> Boolean): ConstraintBuilder<C, T, E>
 
     internal abstract fun <R> property(name: String, mapFn: (T) -> R, init: ValidationBuilder<C, R, E>.() -> Unit)
@@ -82,56 +80,45 @@ abstract class ValidationBuilder<C, T, E> {
 
     internal abstract fun add(builder: ComposableBuilder<C, T, E>)
 
-    abstract val <R> KProperty1<T, R>.has: ValidationBuilder<C, R, E>
-    abstract val <R> KFunction1<T, R>.has: ValidationBuilder<C, R, E>
+    val <R> KProperty1<T, R>.has: ValidationBuilder<C, R, E> get() = has(this.name, this)
+    val <R> KFunction1<T, R>.has: ValidationBuilder<C, R, E> get() = has(this.name, this)
+    internal abstract fun <R> has(name: String, mapFn: (T) -> R): ValidationBuilder<C, R, E>
 }
 
 fun <C, T> ValidationBuilder<C, T, String>.addConstraint(hint: String, vararg values: Any, test: C.(T) -> Boolean): ConstraintBuilder<C, T, String> =
     addConstraint(stringHint(hint), *values) { test(it) }
 
-fun <C, T : Any, E> ValidationBuilder<C, T?, E>.ifPresent(init: ValidationBuilder<C, T, E>.() -> Unit) {
-    val builder = ValidationNodeBuilder<C, T, E>().also(init)
-    add(OptionalValidationBuilder(builder))
-}
+fun <C, T : Any, E> ValidationBuilder<C, T?, E>.ifPresent(init: ValidationBuilder<C, T, E>.() -> Unit) =
+    add(OptionalValidationBuilder(eagerBuilder(init)))
 
-fun <C, T : Any, E> ValidationBuilder<C, T?, E>.required(hint: HintBuilder<C, T?, E>, init: ValidationBuilder<C, T, E>.() -> Unit): ConstraintBuilder<C, T?, E> {
-    val builder = ValidationNodeBuilder<C, T, E>().also(init)
-    val requiredValidationBuilder = RequiredValidationBuilder(hint, builder)
-    add(requiredValidationBuilder)
-    return requiredValidationBuilder.constraintBuilder
-}
+fun <C, T : Any, E> ValidationBuilder<C, T?, E>.required(hint: HintBuilder<C, T?, E>, init: ValidationBuilder<C, T, E>.() -> Unit): ConstraintBuilder<C, T?, E> =
+    RequiredValidationBuilder(hint, eagerBuilder(init))
+        .also(::add)
+        .constraintBuilder
 
 @JvmName("onEachIterable")
-fun <C, S, T : Iterable<S>, E> ValidationBuilder<C, T, E>.onEach(init: ValidationBuilder<C, S, E>.() -> Unit) {
-    val builder = ValidationNodeBuilder<C, S, E>().also(init)
-    @Suppress("UNCHECKED_CAST")
-    add(IterableValidationBuilder(builder) as ComposableBuilder<C, T, E>)
-}
+@Suppress("UNCHECKED_CAST")
+fun <C, S, T : Iterable<S>, E> ValidationBuilder<C, T, E>.onEach(init: ValidationBuilder<C, S, E>.() -> Unit) =
+    add(IterableValidationBuilder(eagerBuilder(init)) as ComposableBuilder<C, T, E>)
 
 @JvmName("onEachArray")
-fun <C, T, E> ValidationBuilder<C, Array<T>, E>.onEach(init: ValidationBuilder<C, T, E>.() -> Unit) {
-    val builder = ValidationNodeBuilder<C, T, E>().also(init)
-    add(ArrayValidationBuilder(builder))
-}
+fun <C, T, E> ValidationBuilder<C, Array<T>, E>.onEach(init: ValidationBuilder<C, T, E>.() -> Unit) =
+    add(ArrayValidationBuilder(eagerBuilder(init)))
 
 @JvmName("onEachMap")
-fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEach(init: ValidationBuilder<C, Map.Entry<K, V>, E>.() -> Unit) {
-    val builder = ValidationNodeBuilder<C, Map.Entry<K, V>, E>().also(init)
-    @Suppress("UNCHECKED_CAST")
-    add(MapValidationBuilder(builder) as ComposableBuilder<C, T, E>)
-}
+@Suppress("UNCHECKED_CAST")
+fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEach(init: ValidationBuilder<C, Map.Entry<K, V>, E>.() -> Unit) =
+    add(MapValidationBuilder(eagerBuilder(init)) as ComposableBuilder<C, T, E>)
 
 @JvmName("onEachMapValue")
-fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEachValue(init: ValidationBuilder<C, V, E>.() -> Unit) {
-    val builder = ValidationNodeBuilder<C, V, E>().also(init)
-    @Suppress("UNCHECKED_CAST")
-    add(MapValueValidationBuilder<C, K, V, E>(builder) as ComposableBuilder<C, T, E>)
-}
+@Suppress("UNCHECKED_CAST")
+fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEachValue(init: ValidationBuilder<C, V, E>.() -> Unit) =
+    add(MapValueValidationBuilder<C, K, V, E>(eagerBuilder(init)) as ComposableBuilder<C, T, E>)
 
 @JvmName("onEachMapKey")
-fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEachKey(init: ValidationBuilder<C, K, E>.() -> Unit) {
-    val builder = ValidationNodeBuilder<C, K, E>().also(init)
-    @Suppress("UNCHECKED_CAST")
-    add(MapKeyValidationBuilder<C, K, V, E>(builder) as ComposableBuilder<C, T, E>)
-}
+@Suppress("UNCHECKED_CAST")
+fun <C, K, V, T : Map<K, V>, E> ValidationBuilder<C, T, E>.onEachKey(init: ValidationBuilder<C, K, E>.() -> Unit) =
+    add(MapKeyValidationBuilder<C, K, V, E>(eagerBuilder(init)) as ComposableBuilder<C, T, E>)
 
+internal fun <C, T, E> eagerBuilder(init: ValidationBuilder<C, T, E>.() -> Unit): EagerValidationNodeBuilder<C, T, E> =
+    EagerValidationNodeBuilder(NodeValidationsBuilder<C, T, E>().also(init))

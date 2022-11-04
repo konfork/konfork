@@ -77,8 +77,8 @@ internal class LazyValidationNode<C, T, E>(
             .firstOrNull() ?: Valid(value)
 }
 
-internal class ValidationNode<C, T, E>(
-    internal val subValidations: List<Validation<C, T, E>>
+internal class EagerValidationNode<C, T, E>(
+    private val subValidations: List<Validation<C, T, E>>
 ) : Validation<C, T, E> {
     override fun validate(context: C, value: T): ValidationResult<E, T> =
         subValidations.fold(Valid(value)) { acc: ValidationResult<E, T>, validation ->

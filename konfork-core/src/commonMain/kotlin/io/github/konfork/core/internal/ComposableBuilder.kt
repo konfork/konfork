@@ -15,11 +15,18 @@ internal class PropertyValidationBuilder<C, T, V, E>(
         MappedValidation(subBuilder.build(), mapFn) { ".$name$it" }
 }
 
-internal class LazyValidationBuilder<C, T, E>(
-    private val subBuilder: ValidationNodeBuilder<C, T, E>,
+internal class LazyValidationNodeBuilder<C, T, E>(
+    private val subBuilder: NodeValidationsBuilder<C, T, E>,
 ) : ComposableBuilder<C, T, E> {
     override fun build(): Validation<C, T, E> =
-        LazyValidationNode(subBuilder.build().subValidations)
+        LazyValidationNode(subBuilder.build())
+}
+
+internal class EagerValidationNodeBuilder<C, T, E>(
+    private val subBuilder: NodeValidationsBuilder<C, T, E>,
+) : ComposableBuilder<C, T, E> {
+    override fun build(): Validation<C, T, E> =
+        EagerValidationNode(subBuilder.build())
 }
 
 internal class IterableValidationBuilder<C, T, E>(
