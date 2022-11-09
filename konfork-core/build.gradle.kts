@@ -5,3 +5,6 @@ plugins {
 repositories {
     mavenCentral()
 }
+
+konforkLibPlugin.buildJs.set(true)
+konforkLibPlugin.buildJvm.set(true)

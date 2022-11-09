@@ -9,24 +9,33 @@ plugins {
 project.group = rootProject.group
 project.version = rootProject.version
 
+val pluginSettings = extensions.create<KonforkLibPluginSettings>("konforkLibPlugin")
+pluginSettings.buildJs.convention(true)
+pluginSettings.buildJvm.convention(true)
+
 kotlin {
-    jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
-        }
-        withJava()
-        testRuns["test"].executionTask.configure {
-            useJUnitPlatform()
+    if (pluginSettings.buildJvm.get()) {
+        jvm {
+            compilations.all {
+                kotlinOptions.jvmTarget = "1.8"
+            }
+            withJava()
+            testRuns["test"].executionTask.configure {
+                useJUnitPlatform()
+            }
         }
     }
-    js(BOTH) {
-        browser()
-        nodejs()
+    if (pluginSettings.buildJs.get()) {
+        js(BOTH) {
+            browser()
+            nodejs()
+        }
     }
     sourceSets {
         commonTest {
             dependencies {
                 implementation(kotlin("test"))
+                implementation(project(":konfork-test"))
             }
         }
     }
