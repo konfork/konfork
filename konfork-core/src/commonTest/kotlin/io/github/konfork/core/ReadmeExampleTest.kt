@@ -1,6 +1,7 @@
 package io.github.konfork.core
 
 import io.github.konfork.core.validators.*
+import io.github.konfork.test.assertThat
 import kotlin.collections.Map.Entry
 import kotlin.test.Test
 

@@ -5,6 +5,8 @@ import io.github.konfork.core.ValidationBuilderTest.Errors.TWO
 import io.github.konfork.core.validators.minItems
 import io.github.konfork.core.validators.minLength
 import io.github.konfork.core.validators.pattern
+import io.github.konfork.test.assertThat
+import io.github.konfork.test.withHintMatches
 import kotlin.test.Test
 
 class ValidationBuilderTest {

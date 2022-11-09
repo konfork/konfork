@@ -1,6 +1,7 @@
 package io.github.konfork.core.internal
 
 import io.github.konfork.core.*
+import io.github.konfork.test.assertThat
 import kotlin.test.Test
 
 class LazyValidationNodeTest {

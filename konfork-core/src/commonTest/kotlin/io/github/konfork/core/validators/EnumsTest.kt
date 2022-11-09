@@ -1,8 +1,8 @@
 package io.github.konfork.core.validators
 
 import io.github.konfork.core.Validation
-import io.github.konfork.core.assertThat
 import io.github.konfork.core.validators.EnumsTest.TCPPacket.*
+import io.github.konfork.test.assertThat
 import kotlin.test.Test
 
 class EnumsTest {

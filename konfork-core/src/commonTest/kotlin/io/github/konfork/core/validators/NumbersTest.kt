@@ -1,8 +1,8 @@
 package io.github.konfork.core.validators
 
 import io.github.konfork.core.Validation
-import io.github.konfork.core.assertThat
-import io.github.konfork.core.withHintMatches
+import io.github.konfork.test.assertThat
+import io.github.konfork.test.withHintMatches
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 

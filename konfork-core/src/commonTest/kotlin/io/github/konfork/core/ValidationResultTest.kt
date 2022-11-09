@@ -3,6 +3,7 @@ package io.github.konfork.core
 import io.github.konfork.core.validators.maxLength
 import io.github.konfork.core.validators.minLength
 import io.github.konfork.core.validators.pattern
+import io.github.konfork.test.assertThat
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
