@@ -71,7 +71,7 @@ This projects aim is to add these features.
 - [ ] Add String validations: isDate, isEmail, lengthIn (range), URL, checkdigit (EAN, mod10, mod13, luhn, ISBN,
       Verhoeff)
 - [ ] Add Number validations: inRange
-- [ ] Add separate module with password strength validation nbvcxz
+- [x] Add separate module with password strength validation nbvcxz
 - [ ] Add separate module for utils for interoperability with Arrow
 
 ##### License
