@@ -1,2 +1,2 @@
 rootProject.name = "konfork"
-include("konfork-core", "konfork-test")
+include("konfork-core", "konfork-test", "konfork-nbvcxz")
