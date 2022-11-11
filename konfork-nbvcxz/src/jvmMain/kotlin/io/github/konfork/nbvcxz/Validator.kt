@@ -2,7 +2,7 @@ package io.github.konfork.nbvcxz
 
 import io.github.konfork.core.ConstraintBuilder
 import io.github.konfork.core.HintBuilder
-import io.github.konfork.core.ValidationBuilder
+import io.github.konfork.core.Specification
 import io.github.konfork.core.stringHint
 import io.github.konfork.nbvcxz.PasswordStrength.STRONG
 import me.gosimple.nbvcxz.Nbvcxz
@@ -22,7 +22,7 @@ enum class PasswordStrength(
     val entropy: Double by lazy { log2(guesses.toDouble()) }
 }
 
-fun <C, E> ValidationBuilder<C, String, E>.passwordStrength(
+fun <C, E> Specification<C, String, E>.passwordStrength(
     hintBuilder: HintBuilder<C, String, E>,
     nbvcxz: Nbvcxz,
     minEntropy: Double,
@@ -31,33 +31,33 @@ fun <C, E> ValidationBuilder<C, String, E>.passwordStrength(
         nbvcxz.estimate(it).entropy >= minEntropy
     }
 
-fun <C> ValidationBuilder<C, String, String>.passwordStrength(
+fun <C> Specification<C, String, String>.passwordStrength(
     nbvcxz: Nbvcxz,
     minEntropy: Double,
 ): ConstraintBuilder<C, String, String> =
     passwordStrength(passwordHint(), nbvcxz, minEntropy)
 
-fun <C, E> ValidationBuilder<C, String, E>.passwordStrength(
+fun <C, E> Specification<C, String, E>.passwordStrength(
     hintBuilder: HintBuilder<C, String, E>,
     nbvcxz: Nbvcxz,
     minStrength: PasswordStrength,
 ): ConstraintBuilder<C, String, E> =
     passwordStrength(hintBuilder, nbvcxz, minStrength.entropy)
 
-fun <C> ValidationBuilder<C, String, String>.passwordStrength(
+fun <C> Specification<C, String, String>.passwordStrength(
     nbvcxz: Nbvcxz,
     minStrength: PasswordStrength,
 ): ConstraintBuilder<C, String, String> =
     passwordStrength(passwordHint(), nbvcxz, minStrength)
 
-fun <C, E> ValidationBuilder<C, String, E>.passwordStrength(
+fun <C, E> Specification<C, String, E>.passwordStrength(
     hintBuilder: HintBuilder<C, String, E>,
     minStrength: PasswordStrength = STRONG,
     vararg forbiddenWords: String,
 ): ConstraintBuilder<C, String, E> =
     passwordStrength(hintBuilder, createNbvcxz(forbiddenWords), minStrength.entropy)
 
-fun <C> ValidationBuilder<C, String, String>.passwordStrength(
+fun <C> Specification<C, String, String>.passwordStrength(
     minStrength: PasswordStrength = STRONG,
     vararg forbiddenWords: String,
 ): ConstraintBuilder<C, String, String> =

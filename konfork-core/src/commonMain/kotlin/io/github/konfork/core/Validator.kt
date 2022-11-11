@@ -5,15 +5,15 @@ import kotlin.jvm.JvmName
 interface Validator<C, T, E> {
 
     companion object {
-        operator fun <C, T, E> invoke(init: ValidationBuilder<C, T, E>.() -> Unit): Validator<C, T, E> =
+        operator fun <C, T, E> invoke(init: Specification<C, T, E>.() -> Unit): Validator<C, T, E> =
             eagerBuilder(init).build()
 
         @JvmName("contextInvoke")
-        operator fun <C, T> invoke(init: ValidationBuilder<C, T, String>.() -> Unit): Validator<C, T, String> =
+        operator fun <C, T> invoke(init: Specification<C, T, String>.() -> Unit): Validator<C, T, String> =
             eagerBuilder(init).build()
 
         @JvmName("simpleInvoke")
-        operator fun <T> invoke(init: ValidationBuilder<Unit, T, String>.() -> Unit): Validator<Unit, T, String> =
+        operator fun <T> invoke(init: Specification<Unit, T, String>.() -> Unit): Validator<Unit, T, String> =
             eagerBuilder(init).build()
     }
 

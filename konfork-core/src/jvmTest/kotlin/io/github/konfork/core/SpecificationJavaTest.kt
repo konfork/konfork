@@ -4,7 +4,7 @@ import io.github.konfork.core.validators.maxLength
 import io.github.konfork.test.assertThat
 import org.junit.jupiter.api.Test
 
-class ValidationBuilderJavaTest {
+class SpecificationJavaTest {
 
     @Test
     fun validateArrays() {

@@ -12,16 +12,16 @@ import kotlin.test.Test
 class ValidationBuilderTest {
 
     // Some example constraints for Testing
-    private fun ValidationBuilder<Unit, String, String>.minLength(minValue: Int) =
+    private fun Specification<Unit, String, String>.minLength(minValue: Int) =
         addConstraint("must have at least {0} characters", minValue) { it.length >= minValue }
 
-    private fun ValidationBuilder<Unit, String, String>.maxLength(minValue: Int) =
+    private fun Specification<Unit, String, String>.maxLength(minValue: Int) =
         addConstraint("must have at most {0} characters", minValue) { it.length <= minValue }
 
-    private fun ValidationBuilder<Unit, String, String>.matches(regex: Regex) =
+    private fun Specification<Unit, String, String>.matches(regex: Regex) =
         addConstraint("must have correct format") { it.contains(regex) }
 
-    private fun ValidationBuilder<Unit, String, String>.containsANumber() =
+    private fun Specification<Unit, String, String>.containsANumber() =
         matches("[0-9]".toRegex()) hint stringHint("must have at least one number")
 
     @Test
