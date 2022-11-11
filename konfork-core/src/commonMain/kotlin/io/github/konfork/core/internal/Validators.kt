@@ -4,19 +4,19 @@ import io.github.konfork.core.*
 
 internal class MappedContextValidator<C, S, T, E>(
     private val validator: Validator<S, T, E>,
-    private val map: (C) -> S,
+    private val mapContext: (C) -> S,
 ) : Validator<C, T, E> {
     override fun validate(context: C, value: T): ValidationResult<E, T> =
-        validator(map(context), value)
+        validator(mapContext(context), value)
 }
 
 internal class MappedValidator<C, T, V, E>(
     private val validator: Validator<C, V, E>,
-    private val mapFn: (T) -> V,
+    private val mapValue: (T) -> V,
     private val keyMapFn: (String) -> String,
 ) : Validator<C, T, E> {
     override fun validate(context: C, value: T): ValidationResult<E, T> =
-        validator(context, mapFn(value), value, keyMapFn)
+        validator(context, mapValue(value), value, keyMapFn)
 }
 
 internal class OptionalValidator<C, T : Any, E>(

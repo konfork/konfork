@@ -70,8 +70,12 @@ abstract class Specification<C, T, E> {
     abstract fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: Specification<C, R, E>.() -> Unit): HintedSpecification<C, R, E>
     abstract fun <C, R> with(init: Specification<C, R, String>.() -> Unit): HintedSpecification<C, R, String>
 
-    abstract fun <S> run(validator: Validator<S, T, E>, map: (C) -> S)
-    fun run(validator: Validator<C, T, E>) = run(validator, ::identity)
+    internal abstract fun <R, S> apply(name: String, validator: Validator<S, R, E>, mapFn: (T) -> R, mapContext: (C) -> S)
+    infix fun <R> KProperty1<T, R>.apply(validator: Validator<C, R, E>) = apply(name, validator, this, ::identity)
+    infix fun <R> KFunction1<T, R>.apply(validator: Validator<C, R, E>) = apply(name, validator, this, ::identity)
+
+    abstract fun <S> apply(validator: Validator<S, T, E>, mapContext: (C) -> S)
+    fun apply(validator: Validator<C, T, E>) = apply(validator, ::identity)
 
     internal abstract fun add(builder: ValidatorBuilder<C, T, E>)
 

@@ -530,39 +530,50 @@ class ValidationBuilderTest {
             .withErrorCount(1, MapData::registrations, "u#key")
     }
 
+    private val addressValidator = Validator {
+        Address::address {
+            minLength(1)
+        }
+    }
+
+    private val addressValidatorWithContext = Validator<AddressContext, Address> {
+        Address::address.has.minLength(1)
+        Address::country {
+            addConstraint("Country is not allowed") {
+                this.validCountries.contains(it)
+            }
+        }
+    }
+
     @Test
     fun composeValidators() {
-        val addressValidator = Validator {
-            Address::address {
-                minLength(1)
-            }
-        }
-
         val validator = Validator {
-            Register::home ifPresent {
-                run(addressValidator)
+            Register::secondaryHome ifPresent {
+                apply(addressValidator)
             }
         }
 
-        assertThat(validator, Register(home = Address()))
+        assertThat(validator, Register(secondaryHome = Address()))
+            .isInvalid()
+            .withErrorCount(1)
+    }
+
+    @Test
+    fun composeValidatorsInfix() {
+        val validator = Validator {
+            Register::home apply addressValidator
+        }
+
+        assertThat(validator, Register())
             .isInvalid()
             .withErrorCount(1)
     }
 
     @Test
     fun composeValidatorsWithContext() {
-        val addressValidator = Validator<AddressContext, Address> {
-            Address::address.has.minLength(1)
-            Address::country {
-                addConstraint("Country is not allowed") {
-                    this.validCountries.contains(it)
-                }
-            }
-        }
-
         val validator = Validator<RegisterContext, Register> {
             Register::home ifPresent {
-                run(addressValidator, RegisterContext::subContext)
+                apply(addressValidatorWithContext, RegisterContext::subContext)
             }
         }
 
@@ -588,7 +599,13 @@ class ValidationBuilderTest {
     private data class MapData(val registrations: Map<String, Register> = emptyMap())
 
     enum class Errors { ONE, TWO, }
-    private data class Register(val password: String = "", val email: String = "", val referredBy: String? = null, val home: Address? = null)
+    private data class Register(
+        val password: String = "",
+        val email: String = "",
+        val referredBy: String? = null,
+        val home: Address = Address(),
+        val secondaryHome: Address? = null,
+    )
     private data class Address(val address: String = "", val country: String = "DE")
     private data class RegisterContext(val subContext: AddressContext = AddressContext())
     private data class AddressContext(val validCountries: Set<String> = setOf("DE", "NL", "BE"))

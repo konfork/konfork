@@ -53,8 +53,11 @@ internal class ValidatorsBuilder<C, T, E> : Specification<C, T, E>() {
     override fun <C, R> with(init: Specification<C, R, String>.() -> Unit): HintedSpecification<C, R, String> =
         HintedSpecification(stringHint("is required"), init)
 
-    override fun <S> run(validator: Validator<S, T, E>, map: (C) -> S) =
-        add(PrebuildValidatorBuilder(validator, map))
+    override fun <R, S> apply(name: String, validator: Validator<S, R, E>, mapFn: (T) -> R, mapContext: (C) -> S) =
+        add(PropertyValidatorBuilder(PrebuildValidatorBuilder(validator, mapContext), name, mapFn))
+
+    override fun <S> apply(validator: Validator<S, T, E>, mapContext: (C) -> S) =
+        add(PrebuildValidatorBuilder(validator, mapContext))
 
     override fun <R> has(name: String, mapFn: (T) -> R): Specification<C, R, E> =
         ValidatorsBuilder<C, R, E>()
