@@ -84,36 +84,36 @@ fun <C, T> Specification<C, T, String>.addConstraint(hint: String, vararg values
     addConstraint(stringHint(hint), *values) { test(it) }
 
 fun <C, T : Any, E> Specification<C, T?, E>.ifPresent(init: Specification<C, T, E>.() -> Unit) =
-    add(OptionalValidationBuilder(eagerBuilder(init)))
+    add(OptionalValidatorBuilder(eagerBuilder(init)))
 
 fun <C, T : Any, E> Specification<C, T?, E>.required(hint: HintBuilder<C, T?, E>, init: Specification<C, T, E>.() -> Unit): ConstraintBuilder<C, T?, E> =
-    RequiredValidationBuilder(hint, eagerBuilder(init))
+    RequiredValidatorBuilder(hint, eagerBuilder(init))
         .also(::add)
         .constraintBuilder
 
 @JvmName("onEachIterable")
 @Suppress("UNCHECKED_CAST")
 fun <C, S, T : Iterable<S>, E> Specification<C, T, E>.onEach(init: Specification<C, S, E>.() -> Unit) =
-    add(IterableValidationBuilder(eagerBuilder(init)) as ValidatorBuilder<C, T, E>)
+    add(IterableValidatorBuilder(eagerBuilder(init)) as ValidatorBuilder<C, T, E>)
 
 @JvmName("onEachArray")
 fun <C, T, E> Specification<C, Array<T>, E>.onEach(init: Specification<C, T, E>.() -> Unit) =
-    add(ArrayValidationBuilder(eagerBuilder(init)))
+    add(ArrayValidatorBuilder(eagerBuilder(init)))
 
 @JvmName("onEachMap")
 @Suppress("UNCHECKED_CAST")
 fun <C, K, V, T : Map<K, V>, E> Specification<C, T, E>.onEach(init: Specification<C, Map.Entry<K, V>, E>.() -> Unit) =
-    add(MapValidationBuilder(eagerBuilder(init)) as ValidatorBuilder<C, T, E>)
+    add(MapValidatorBuilder(eagerBuilder(init)) as ValidatorBuilder<C, T, E>)
 
 @JvmName("onEachMapValue")
 @Suppress("UNCHECKED_CAST")
 fun <C, K, V, T : Map<K, V>, E> Specification<C, T, E>.onEachValue(init: Specification<C, V, E>.() -> Unit) =
-    add(MapValueValidationBuilder<C, K, V, E>(eagerBuilder(init)) as ValidatorBuilder<C, T, E>)
+    add(MapValueValidatorBuilder<C, K, V, E>(eagerBuilder(init)) as ValidatorBuilder<C, T, E>)
 
 @JvmName("onEachMapKey")
 @Suppress("UNCHECKED_CAST")
 fun <C, K, V, T : Map<K, V>, E> Specification<C, T, E>.onEachKey(init: Specification<C, K, E>.() -> Unit) =
-    add(MapKeyValidationBuilder<C, K, V, E>(eagerBuilder(init)) as ValidatorBuilder<C, T, E>)
+    add(MapKeyValidatorBuilder<C, K, V, E>(eagerBuilder(init)) as ValidatorBuilder<C, T, E>)
 
-internal fun <C, T, E> eagerBuilder(init: Specification<C, T, E>.() -> Unit): EagerValidationNodeBuilder<C, T, E> =
-    EagerValidationNodeBuilder(ValidatorsBuilder<C, T, E>().also(init))
+internal fun <C, T, E> eagerBuilder(init: Specification<C, T, E>.() -> Unit): EagerValidatorNodeBuilder<C, T, E> =
+    EagerValidatorNodeBuilder(ValidatorsBuilder<C, T, E>().also(init))

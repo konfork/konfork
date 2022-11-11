@@ -10,41 +10,41 @@ internal class ValidatorsBuilder<C, T, E> : Specification<C, T, E>() {
         subBuilders.map(ValidatorBuilder<C, T, E>::build)
 
     override fun addConstraint(hint: HintBuilder<C, T, E>, vararg values: Any, test: (C, T) -> Boolean): ConstraintBuilder<C, T, E> =
-        ConstraintValidationBuilder(hint, values.toList(), test).also(::add)
+        ConstraintValidatorBuilder(hint, values.toList(), test).also(::add)
 
     override fun <R> property(name: String, mapFn: (T) -> R, init: Specification<C, R, E>.() -> Unit) =
-        add(PropertyValidationBuilder(eagerBuilder(init), name, mapFn))
+        add(PropertyValidatorBuilder(eagerBuilder(init), name, mapFn))
 
     override fun eager(init: Specification<C, T, E>.() -> Unit) =
         add(eagerBuilder(init))
 
     override fun <R> lazy(name: String, mapFn: (T) -> R, init: Specification<C, R, E>.() -> Unit) =
-        add(PropertyValidationBuilder(lazyBuilder(init), name, mapFn))
+        add(PropertyValidatorBuilder(lazyBuilder(init), name, mapFn))
 
     override fun lazy(init: Specification<C, T, E>.() -> Unit) =
         add(lazyBuilder(init))
 
     override fun <R> onEachIterable(name: String, mapFn: (T) -> Iterable<R>, init: Specification<C, R, E>.() -> Unit) =
-        add(PropertyValidationBuilder(IterableValidationBuilder(eagerBuilder(init)), name, mapFn))
+        add(PropertyValidatorBuilder(IterableValidatorBuilder(eagerBuilder(init)), name, mapFn))
 
     override fun <R> onEachArray(name: String, mapFn: (T) -> Array<R>, init: Specification<C, R, E>.() -> Unit) =
-        add(PropertyValidationBuilder(ArrayValidationBuilder(eagerBuilder(init)), name, mapFn))
+        add(PropertyValidatorBuilder(ArrayValidatorBuilder(eagerBuilder(init)), name, mapFn))
 
     override fun <K, V> onEachMap(name: String, mapFn: (T) -> Map<K, V>, init: Specification<C, Entry<K, V>, E>.() -> Unit) =
-        add(PropertyValidationBuilder(MapValidationBuilder(eagerBuilder(init)), name, mapFn))
+        add(PropertyValidatorBuilder(MapValidatorBuilder(eagerBuilder(init)), name, mapFn))
 
     override fun <K, V> onEachMapValue(name: String, mapFn: (T) -> Map<K, V>, init: Specification<C, V, E>.() -> Unit) =
-        add(PropertyValidationBuilder(MapValueValidationBuilder(eagerBuilder(init)), name, mapFn))
+        add(PropertyValidatorBuilder(MapValueValidatorBuilder(eagerBuilder(init)), name, mapFn))
 
     override fun <K, V> onEachMapKey(name: String, mapFn: (T) -> Map<K, V>, init: Specification<C, K, E>.() -> Unit) =
-        add(PropertyValidationBuilder(MapKeyValidationBuilder(eagerBuilder(init)), name, mapFn))
+        add(PropertyValidatorBuilder(MapKeyValidatorBuilder(eagerBuilder(init)), name, mapFn))
 
     override fun <R : Any> ifPresent(name: String, mapFn: (T) -> R?, init: Specification<C, R, E>.() -> Unit) =
-        add(PropertyValidationBuilder(OptionalValidationBuilder(eagerBuilder(init)), name, mapFn))
+        add(PropertyValidatorBuilder(OptionalValidatorBuilder(eagerBuilder(init)), name, mapFn))
 
     override fun <R : Any> required(name: String, hint: HintBuilder<C, R?, E>, mapFn: (T) -> R?, init: Specification<C, R, E>.() -> Unit): ConstraintBuilder<C, R?, E> =
-        RequiredValidationBuilder(hint, eagerBuilder(init))
-            .also { add(PropertyValidationBuilder(it, name, mapFn)) }
+        RequiredValidatorBuilder(hint, eagerBuilder(init))
+            .also { add(PropertyValidatorBuilder(it, name, mapFn)) }
             .constraintBuilder
 
     override fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: Specification<C, R, E>.() -> Unit): HintedSpecification<C, R, E> =
@@ -54,17 +54,17 @@ internal class ValidatorsBuilder<C, T, E> : Specification<C, T, E>() {
         HintedSpecification(stringHint("is required"), init)
 
     override fun <S> run(validator: Validator<S, T, E>, map: (C) -> S) =
-        add(PrebuildValidationBuilder(validator, map))
+        add(PrebuildValidatorBuilder(validator, map))
 
     override fun <R> has(name: String, mapFn: (T) -> R): Specification<C, R, E> =
         ValidatorsBuilder<C, R, E>()
-            .also { add(PropertyValidationBuilder(EagerValidationNodeBuilder(it), name, mapFn)) }
+            .also { add(PropertyValidatorBuilder(EagerValidatorNodeBuilder(it), name, mapFn)) }
 
     private fun <D, S> eagerBuilder(init: Specification<D, S, E>.() -> Unit) =
-        EagerValidationNodeBuilder(ValidatorsBuilder<D, S, E>().also(init))
+        EagerValidatorNodeBuilder(ValidatorsBuilder<D, S, E>().also(init))
 
     private fun <D, S> lazyBuilder(init: Specification<D, S, E>.() -> Unit) =
-        LazyValidationNodeBuilder(ValidatorsBuilder<D, S, E>().also(init))
+        LazyValidatorNodeBuilder(ValidatorsBuilder<D, S, E>().also(init))
 
     override fun add(builder: ValidatorBuilder<C, T, E>) {
         subBuilders.add(builder)

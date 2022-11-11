@@ -6,7 +6,7 @@ internal interface ValidatorBuilder<C, T, E> {
     fun build(): Validator<C, T, E>
 }
 
-internal class PropertyValidationBuilder<C, T, V, E>(
+internal class PropertyValidatorBuilder<C, T, V, E>(
     private val subBuilder: ValidatorBuilder<C, V, E>,
     private val name: String,
     private val mapFn: (T) -> V,
@@ -15,28 +15,28 @@ internal class PropertyValidationBuilder<C, T, V, E>(
         MappedValidator(subBuilder.build(), mapFn) { ".$name$it" }
 }
 
-internal class LazyValidationNodeBuilder<C, T, E>(
+internal class LazyValidatorNodeBuilder<C, T, E>(
     private val subBuilder: ValidatorsBuilder<C, T, E>,
 ) : ValidatorBuilder<C, T, E> {
     override fun build(): Validator<C, T, E> =
         LazyValidatorNode(subBuilder.build())
 }
 
-internal class EagerValidationNodeBuilder<C, T, E>(
+internal class EagerValidatorNodeBuilder<C, T, E>(
     private val subBuilder: ValidatorsBuilder<C, T, E>,
 ) : ValidatorBuilder<C, T, E> {
     override fun build(): Validator<C, T, E> =
         EagerValidatorNode(subBuilder.build())
 }
 
-internal class IterableValidationBuilder<C, T, E>(
+internal class IterableValidatorBuilder<C, T, E>(
     private val subBuilder: ValidatorBuilder<C, T, E>,
 ) : ValidatorBuilder<C, Iterable<T>, E> {
     override fun build(): Validator<C, Iterable<T>, E> =
         OnEachValidator(subBuilder.build()) { _, index, name -> "[$index]$name" }
 }
 
-internal class ArrayValidationBuilder<C, T, E>(
+internal class ArrayValidatorBuilder<C, T, E>(
     private val subBuilder: ValidatorBuilder<C, T, E>,
 ) : ValidatorBuilder<C, Array<T>, E> {
     override fun build(): Validator<C, Array<T>, E> =
@@ -47,7 +47,7 @@ internal class ArrayValidationBuilder<C, T, E>(
         )
 }
 
-internal class MapValidationBuilder<C, K, V, E>(
+internal class MapValidatorBuilder<C, K, V, E>(
     private val subBuilder: ValidatorBuilder<C, Map.Entry<K, V>, E>,
 ) : ValidatorBuilder<C, Map<K, V>, E> {
     override fun build(): Validator<C, Map<K, V>, E> =
@@ -60,7 +60,7 @@ internal class MapValidationBuilder<C, K, V, E>(
         )
 }
 
-internal class MapValueValidationBuilder<C, K, V, E>(
+internal class MapValueValidatorBuilder<C, K, V, E>(
     private val subBuilder: ValidatorBuilder<C, V, E>,
 ) : ValidatorBuilder<C, Map<K, V>, E> {
     override fun build(): Validator<C, Map<K, V>, E> =
@@ -75,7 +75,7 @@ internal class MapValueValidationBuilder<C, K, V, E>(
         )
 }
 
-internal class MapKeyValidationBuilder<C, K, V, E>(
+internal class MapKeyValidatorBuilder<C, K, V, E>(
     private val subBuilder: ValidatorBuilder<C, K, E>,
 ) : ValidatorBuilder<C, Map<K, V>, E> {
     override fun build(): Validator<C, Map<K, V>, E> =
@@ -90,18 +90,18 @@ internal class MapKeyValidationBuilder<C, K, V, E>(
         )
 }
 
-internal class OptionalValidationBuilder<C, T : Any, E>(
+internal class OptionalValidatorBuilder<C, T : Any, E>(
     private val subBuilder: ValidatorBuilder<C, T, E>,
 ) : ValidatorBuilder<C, T?, E> {
     override fun build(): Validator<C, T?, E> = OptionalValidator(subBuilder.build())
 }
 
-internal class RequiredValidationBuilder<C, T : Any, E>(
+internal class RequiredValidatorBuilder<C, T : Any, E>(
     hint: HintBuilder<C, T?, E>,
     private val subBuilder: ValidatorBuilder<C, T, E>,
 ) : ValidatorBuilder<C, T?, E> {
-    val constraintBuilder: ConstraintValidationBuilder<C, T?, E> =
-        ConstraintValidationBuilder(hint, emptyList()) { _, value -> value != null }
+    val constraintBuilder: ConstraintValidatorBuilder<C, T?, E> =
+        ConstraintValidatorBuilder(hint, emptyList()) { _, value -> value != null }
     override fun build(): Validator<C, T?, E> =
         RequiredValidator(
             constraintBuilder.build(),
@@ -109,20 +109,20 @@ internal class RequiredValidationBuilder<C, T : Any, E>(
         )
 }
 
-internal class PrebuildValidationBuilder<C, T, S, E>(
+internal class PrebuildValidatorBuilder<C, T, S, E>(
     private val validator: Validator<S, T, E>,
     private val mapFn: (C) -> S,
 ) : ValidatorBuilder<C, T, E> {
     override fun build(): Validator<C, T, E> = MappedContextValidator(validator, mapFn)
 }
 
-internal class ConstraintValidationBuilder<C, T, E>(
+internal class ConstraintValidatorBuilder<C, T, E>(
     private var hint: HintBuilder<C, T, E>,
     private val arguments: HintArguments,
     private val test: (C, T) -> Boolean,
 ) : ValidatorBuilder<C, T, E>, ConstraintBuilder<C, T, E> {
     override fun build(): Validator<C, T, E> = ConstraintValidator(hint, arguments, test)
-    override infix fun hint(hint: HintBuilder<C, T, E>): ConstraintValidationBuilder<C, T, E> {
+    override infix fun hint(hint: HintBuilder<C, T, E>): ConstraintValidatorBuilder<C, T, E> {
         this.hint = hint
         return this
     }
