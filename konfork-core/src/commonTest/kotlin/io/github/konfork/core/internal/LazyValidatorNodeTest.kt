@@ -4,23 +4,23 @@ import io.github.konfork.core.*
 import io.github.konfork.test.assertThat
 import kotlin.test.Test
 
-class LazyValidationNodeTest {
+class LazyValidatorNodeTest {
 
-    private val throwingValidation =
-        object : Validation<Unit, String, String> {
+    private val throwingValidator =
+        object : Validator<Unit, String, String> {
             override fun validate(context: Unit, value: String): ValidationResult<String, String> {
-                throw IllegalStateException("This validation always throws")
+                throw IllegalStateException("This validator always throws")
             }
         }
 
-    private val invalidValidation =
-        object : Validation<Unit, String, String> {
+    private val invalidValidator =
+        object : Validator<Unit, String, String> {
             override fun validate(context: Unit, value: String): ValidationResult<String, String> =
-                Invalid("failingValidation")
+                Invalid("failingValidator")
         }
 
-    private val validValidation =
-        object : Validation<Unit, String, String> {
+    private val validValidator =
+        object : Validator<Unit, String, String> {
             override fun validate(context: Unit, value: String): ValidationResult<String, String> =
                 Valid(value)
         }
@@ -28,16 +28,16 @@ class LazyValidationNodeTest {
     @Test
     fun stopsAfterFirstInvalid() {
 
-        val validation = LazyValidationNode(
+        val validator = LazyValidatorNode(
             listOf(
-                validValidation,
-                invalidValidation,
-                invalidValidation,
-                throwingValidation,
+                validValidator,
+                invalidValidator,
+                invalidValidator,
+                throwingValidator,
             )
         )
 
-        assertThat(validation, "")
+        assertThat(validator, "")
             .isInvalid()
             .withErrorCount(1)
     }

@@ -69,7 +69,7 @@ configure<PublishingExtension> {
         pom {
             val projectGitUrl = "https://github.com/konfork/konfork"
             name.set(rootProject.name)
-            description.set("Declarative validations for Kotlin")
+            description.set("Declarative validators for Kotlin")
             url.set(projectGitUrl)
             inceptionYear.set("2022")
             licenses {

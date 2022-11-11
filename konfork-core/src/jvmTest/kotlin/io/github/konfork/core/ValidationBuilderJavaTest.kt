@@ -8,13 +8,13 @@ class ValidationBuilderJavaTest {
 
     @Test
     fun validateArrays() {
-        val validation = Validation {
+        val validator = Validator {
             TestSubject::stringArray onEach {
                 maxLength(6)
             }
         }
 
-        assertThat(validation, TestSubject())
+        assertThat(validator, TestSubject())
             .isInvalid()
             .withErrorCount(2)
             .withHint("must have at most 6 characters", TestSubject::stringArray, 8)
@@ -23,13 +23,13 @@ class ValidationBuilderJavaTest {
 
     @Test
     fun validateIterables() {
-        val validation = Validation {
+        val validator = Validator {
             TestSubject::stringIterable onEach {
                 maxLength(6)
             }
         }
 
-        assertThat(validation, TestSubject())
+        assertThat(validator, TestSubject())
             .isInvalid()
             .withErrorCount(2)
             .withHint("must have at most 6 characters", TestSubject::stringIterable, 8)
@@ -38,7 +38,7 @@ class ValidationBuilderJavaTest {
 
     @Test
     fun validateMaps() {
-        val validation = Validation {
+        val validator = Validator {
             TestSubject::stringMap onEach {
                 Map.Entry<String, String>::value {
                     maxLength(6)
@@ -46,7 +46,7 @@ class ValidationBuilderJavaTest {
             }
         }
 
-        assertThat(validation, TestSubject())
+        assertThat(validator, TestSubject())
             .isInvalid()
             .withErrorCount(2)
             .withHint("must have at most 6 characters", TestSubject::stringMap, "imagination")
@@ -55,13 +55,13 @@ class ValidationBuilderJavaTest {
 
     @Test
     fun validateMapValue() {
-        val validation = Validation {
+        val validator = Validator {
             TestSubject::stringMap onEachValue {
                 maxLength(6)
             }
         }
 
-        assertThat(validation, TestSubject())
+        assertThat(validator, TestSubject())
             .isInvalid()
             .withErrorCount(2)
             .withHint("must have at most 6 characters", TestSubject::stringMap, "imagination")
@@ -70,13 +70,13 @@ class ValidationBuilderJavaTest {
 
     @Test
     fun validateMapKey() {
-        val validation = Validation {
+        val validator = Validator {
             TestSubject::stringMap onEachKey {
                 maxLength(6)
             }
         }
 
-        assertThat(validation, TestSubject())
+        assertThat(validator, TestSubject())
             .isInvalid()
             .withErrorCount(2)
             .withHint("must have at most 6 characters", TestSubject::stringMap, "imagination#key")
@@ -85,20 +85,20 @@ class ValidationBuilderJavaTest {
 
     @Test
     fun validateIfPresent() {
-        val validationNull = Validation {
+        val validatorNull = Validator {
             TestSubject::nullString ifPresent {
                 maxLength(2)
             }
         }
-        assertThat(validationNull, TestSubject())
+        assertThat(validatorNull, TestSubject())
             .isValid()
 
-        val validationNonNull = Validation {
+        val validatorNonNull = Validator {
             TestSubject::notNullString ifPresent {
                 maxLength(2)
             }
         }
-        assertThat(validationNonNull, TestSubject())
+        assertThat(validatorNonNull, TestSubject())
             .isInvalid()
             .withErrorCount(1)
             .withHint("must have at most 2 characters", TestSubject::notNullString)
@@ -106,22 +106,22 @@ class ValidationBuilderJavaTest {
 
     @Test
     fun validateRequired() {
-        val validationNull = Validation {
+        val validatorNull = Validator {
             TestSubject::nullString required with {
                 maxLength(2)
             }
         }
-        assertThat(validationNull, TestSubject())
+        assertThat(validatorNull, TestSubject())
             .isInvalid()
             .withErrorCount(1)
             .withHint("is required", TestSubject::nullString)
 
-        val validationNonNull = Validation {
+        val validatorNonNull = Validator {
             TestSubject::notNullString required with {
                 maxLength(2)
             }
         }
-        assertThat(validationNonNull, TestSubject())
+        assertThat(validatorNonNull, TestSubject())
             .isInvalid()
             .withErrorCount(1)
             .withHint("must have at most 2 characters", TestSubject::notNullString)

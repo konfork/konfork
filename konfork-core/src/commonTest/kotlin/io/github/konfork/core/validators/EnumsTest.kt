@@ -1,6 +1,6 @@
 package io.github.konfork.core.validators
 
-import io.github.konfork.core.Validation
+import io.github.konfork.core.Validator
 import io.github.konfork.core.validators.EnumsTest.TCPPacket.*
 import io.github.konfork.test.assertThat
 import kotlin.test.Test
@@ -9,20 +9,20 @@ class EnumsTest {
 
     @Test
     fun stringEnumConstraint() {
-        val validation = Validation { enum("OK", "CANCEL") }
+        val validator = Validator { enum("OK", "CANCEL") }
 
-        assertThat(validation, "OK")
+        assertThat(validator, "OK")
             .isValid()
 
-        assertThat(validation, "CANCEL")
+        assertThat(validator, "CANCEL")
             .isValid()
 
-        assertThat(validation, "??")
+        assertThat(validator, "??")
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be one of: 'OK', 'CANCEL'")
 
-        assertThat(validation, "")
+        assertThat(validator, "")
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be one of: 'OK', 'CANCEL'")
@@ -34,15 +34,15 @@ class EnumsTest {
 
     @Test
     fun kotlinEnumConstraint() {
-        val validation = Validation { enum(SYN, ACK) }
+        val validator = Validator { enum(SYN, ACK) }
 
-        assertThat(validation, SYN)
+        assertThat(validator, SYN)
             .isValid()
 
-        assertThat(validation, ACK)
+        assertThat(validator, ACK)
             .isValid()
 
-        assertThat(validation, SYNACK)
+        assertThat(validator, SYNACK)
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be one of: 'SYN', 'ACK'")
@@ -50,18 +50,18 @@ class EnumsTest {
 
     @Test
     fun kotlinEnumStringConstraint() {
-        val validation = Validation { enum<TCPPacket>() }
+        val validator = Validator { enum<TCPPacket>() }
 
-        assertThat(validation, "SYN")
+        assertThat(validator, "SYN")
             .isValid()
 
-        assertThat(validation, "ACK")
+        assertThat(validator, "ACK")
             .isValid()
 
-        assertThat(validation, "SYNACK")
+        assertThat(validator, "SYNACK")
             .isValid()
 
-        assertThat(validation, "ASDF")
+        assertThat(validator, "ASDF")
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be one of: 'SYN', 'ACK', 'SYNACK'")
@@ -69,18 +69,18 @@ class EnumsTest {
 
     @Test
     fun kotlinEnumStringWithContextConstraint() {
-        val validation = Validation<Int, String> { enum<Int, TCPPacket, String>(enumHintBuilder()) }
+        val validator = Validator<Int, String> { enum<Int, TCPPacket, String>(enumHintBuilder()) }
 
-        assertThat(validation, 1, "SYN")
+        assertThat(validator, 1, "SYN")
             .isValid()
 
-        assertThat(validation, 2, "ACK")
+        assertThat(validator, 2, "ACK")
             .isValid()
 
-        assertThat(validation, 3, "SYNACK")
+        assertThat(validator, 3, "SYNACK")
             .isValid()
 
-        assertThat(validation,4, "ASDF")
+        assertThat(validator,4, "ASDF")
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be one of: 'SYN', 'ACK', 'SYNACK'")

@@ -2,62 +2,62 @@ package io.github.konfork.core.internal
 
 import io.github.konfork.core.*
 
-internal class MappedContextValidation<C, S, T, E>(
-    private val validation: Validation<S, T, E>,
+internal class MappedContextValidator<C, S, T, E>(
+    private val validator: Validator<S, T, E>,
     private val map: (C) -> S,
-) : Validation<C, T, E> {
+) : Validator<C, T, E> {
     override fun validate(context: C, value: T): ValidationResult<E, T> =
-        validation(map(context), value)
+        validator(map(context), value)
 }
 
-internal class MappedValidation<C, T, V, E>(
-    private val validation: Validation<C, V, E>,
+internal class MappedValidator<C, T, V, E>(
+    private val validator: Validator<C, V, E>,
     private val mapFn: (T) -> V,
     private val keyMapFn: (String) -> String,
-) : Validation<C, T, E> {
+) : Validator<C, T, E> {
     override fun validate(context: C, value: T): ValidationResult<E, T> =
-        validation(context, mapFn(value), value, keyMapFn)
+        validator(context, mapFn(value), value, keyMapFn)
 }
 
-internal class OptionalValidation<C, T : Any, E>(
-    private val validation: Validation<C, T, E>
-) : Validation<C, T?, E> {
+internal class OptionalValidator<C, T : Any, E>(
+    private val validator: Validator<C, T, E>
+) : Validator<C, T?, E> {
     override fun validate(context: C, value: T?): ValidationResult<E, T?> {
         val nonNullValue = value ?: return Valid(value)
-        return validation(context, nonNullValue)
+        return validator(context, nonNullValue)
     }
 }
 
-internal class RequiredValidation<C, T: Any, E>(
-    private val requiredValidation: Validation<C, T?, E>,
-    private val subValidation: Validation<C, T, E>,
-) : Validation<C, T?, E> {
+internal class RequiredValidator<C, T: Any, E>(
+    private val requiredValidator: Validator<C, T?, E>,
+    private val subValidator: Validator<C, T, E>,
+) : Validator<C, T?, E> {
     override fun validate(context: C, value: T?): ValidationResult<E, T?> {
-        return requiredValidation.validate(context, value)
+        return requiredValidator.validate(context, value)
             .flatMap {
-                subValidation(context, it!!)
+                subValidator(context, it!!)
             }
     }
 }
 
-internal open class OnEachValidation<C, T, E>(
-    private val validation: Validation<C, T, E>,
+internal open class OnEachValidator<C, T, E>(
+    private val validator: Validator<C, T, E>,
     private val keyTransform: (T, Int, String) -> String,
-) : Validation<C, Iterable<T>, E> {
+) : Validator<C, Iterable<T>, E> {
     override fun validate(context: C, value: Iterable<T>): ValidationResult<E, Iterable<T>> =
         value.foldIndexed(Valid(value)) { index, acc: ValidationResult<E, Iterable<T>>, propertyValue ->
-            val result = validation(context, propertyValue, value) {
+            val result = validator(context, propertyValue, value) {
                 keyTransform(propertyValue, index, it)
             }
             acc.combineWith(result)
         }
 }
 
-internal data class ConstraintValidation<C, T, E>(
+internal data class ConstraintValidator<C, T, E>(
     private val hint: HintBuilder<C, T, E>,
     private val arguments: HintArguments,
     private val test: (C, T) -> Boolean,
-) : Validation<C, T, E> {
+) : Validator<C, T, E> {
     override fun validate(context: C, value: T): ValidationResult<E, T> =
         if (test(context, value)) {
             Valid(value)
@@ -66,28 +66,28 @@ internal data class ConstraintValidation<C, T, E>(
         }
 }
 
-internal class LazyValidationNode<C, T, E>(
-    private val subValidations: List<Validation<C, T, E>>
-) : Validation<C, T, E> {
+internal class LazyValidatorNode<C, T, E>(
+    private val subValidators: List<Validator<C, T, E>>
+) : Validator<C, T, E> {
     override fun validate(context: C, value: T): ValidationResult<E, T> =
-        subValidations
+        subValidators
             .asSequence()
             .map { it.validate(context, value) }
             .filterIsInstance<Invalid<E>>()
             .firstOrNull() ?: Valid(value)
 }
 
-internal class EagerValidationNode<C, T, E>(
-    private val subValidations: List<Validation<C, T, E>>
-) : Validation<C, T, E> {
+internal class EagerValidatorNode<C, T, E>(
+    private val subValidators: List<Validator<C, T, E>>
+) : Validator<C, T, E> {
     override fun validate(context: C, value: T): ValidationResult<E, T> =
-        subValidations.fold(Valid(value)) { acc: ValidationResult<E, T>, validation ->
-            val result = validation.validate(context, value)
+        subValidators.fold(Valid(value)) { acc: ValidationResult<E, T>, validator ->
+            val result = validator.validate(context, value)
             acc.combineWith(result)
         }
 }
 
-private operator fun <C, T, E, S> Validation<C, T, E>.invoke(
+private operator fun <C, T, E, S> Validator<C, T, E>.invoke(
     context: C,
     value: T,
     parent: S,

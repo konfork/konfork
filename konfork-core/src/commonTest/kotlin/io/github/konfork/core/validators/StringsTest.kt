@@ -1,6 +1,6 @@
 package io.github.konfork.core.validators
 
-import io.github.konfork.core.Validation
+import io.github.konfork.core.Validator
 import io.github.konfork.test.assertThat
 import kotlin.test.Test
 
@@ -8,67 +8,67 @@ class StringsTest {
 
     @Test
     fun minLengthConstraint() {
-        val validation = Validation { minLength(10) }
+        val validator = Validator { minLength(10) }
 
-        assertThat(validation, "HelloWorld")
+        assertThat(validator, "HelloWorld")
             .isValid()
-        assertThat(validation, "Hello World")
+        assertThat(validator, "Hello World")
             .isValid()
 
-        assertThat(validation, "Hello")
+        assertThat(validator, "Hello")
             .isInvalid()
             .withHint("must have at least 10 characters")
-        assertThat(validation, "")
+        assertThat(validator, "")
             .isInvalid()
             .withHint("must have at least 10 characters")
     }
 
     @Test
     fun maxLengthConstraint() {
-        val validation = Validation { maxLength(10) }
+        val validator = Validator { maxLength(10) }
 
-        assertThat(validation, "HelloWorld")
+        assertThat(validator, "HelloWorld")
             .isValid()
-        assertThat(validation, "Hello")
+        assertThat(validator, "Hello")
             .isValid()
-        assertThat(validation, "")
+        assertThat(validator, "")
             .isValid()
 
-        assertThat(validation, "Hello World")
+        assertThat(validator, "Hello World")
             .isInvalid()
             .withHint("must have at most 10 characters")
     }
 
     @Test
     fun patternConstraint() {
-        val validation = Validation { pattern(".+@.+") }
+        val validator = Validator { pattern(".+@.+") }
 
-        assertThat(validation, "a@a")
+        assertThat(validator, "a@a")
             .isValid()
-        assertThat(validation, "a@a@a@a")
+        assertThat(validator, "a@a@a@a")
             .isValid()
-        assertThat(validation, " a@a ")
+        assertThat(validator, " a@a ")
             .isValid()
 
-        assertThat(validation, "a")
+        assertThat(validator, "a")
             .isInvalid()
             .withHint("must match the expected pattern")
     }
 
     @Test
     fun precompiledPatternConstraint() {
-        val validation = Validation { pattern("^\\w+@\\w+\\.\\w+$".toRegex()) }
+        val validator = Validator { pattern("^\\w+@\\w+\\.\\w+$".toRegex()) }
 
-        assertThat(validation, "tester@example.com")
+        assertThat(validator, "tester@example.com")
             .isValid()
 
-        assertThat(validation, "tester@example")
+        assertThat(validator, "tester@example")
             .isInvalid()
             .withHint("must match the expected pattern")
-        assertThat(validation, " tester@example.com")
+        assertThat(validator, " tester@example.com")
             .isInvalid()
             .withHint("must match the expected pattern")
-        assertThat(validation, "tester@example.com ")
+        assertThat(validator, "tester@example.com ")
             .isInvalid()
             .withHint("must match the expected pattern")
     }

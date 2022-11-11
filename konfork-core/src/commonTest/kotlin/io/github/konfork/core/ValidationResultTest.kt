@@ -10,8 +10,8 @@ import kotlin.test.assertEquals
 class ValidationResultTest {
 
     @Test
-    fun singleValidation() {
-        val validation = Validation<Person> {
+    fun singleValidator() {
+        val validator = Validator {
             Person::name {
                 minLength(1)
             }
@@ -28,7 +28,7 @@ class ValidationResultTest {
         }
 
         val person = Person("", addresses = listOf(Address(City("", ""))))
-        val result = assertThat(validation, person)
+        val result = assertThat(validator, person)
             .isInvalid()
             .withErrorCount(3)
             .subject

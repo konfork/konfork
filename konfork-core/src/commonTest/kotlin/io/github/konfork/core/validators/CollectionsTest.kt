@@ -1,6 +1,6 @@
 package io.github.konfork.core.validators
 
-import io.github.konfork.core.Validation
+import io.github.konfork.core.Validator
 import io.github.konfork.test.assertThat
 import kotlin.test.Test
 
@@ -8,15 +8,15 @@ class CollectionsTest {
 
     @Test
     fun minItemsIterableConstraint() {
-        val validation = Validation<List<String>> { minItems(1) }
+        val validator = Validator<List<String>> { minItems(1) }
 
-        assertThat(validation, listOf("a", "b"))
+        assertThat(validator, listOf("a", "b"))
             .isValid()
 
-        assertThat(validation, listOf("a"))
+        assertThat(validator, listOf("a"))
             .isValid()
 
-        assertThat(validation, emptyList())
+        assertThat(validator, emptyList())
             .isInvalid()
             .withErrorCount(1)
             .withHint("must have at least 1 items")
@@ -24,15 +24,15 @@ class CollectionsTest {
 
     @Test
     fun minItemsArrayConstraint() {
-        val validation = Validation<Array<String>> { minItems(1) }
+        val validator = Validator<Array<String>> { minItems(1) }
 
-        assertThat(validation, arrayOf("a", "b"))
+        assertThat(validator, arrayOf("a", "b"))
             .isValid()
 
-        assertThat(validation, arrayOf("a"))
+        assertThat(validator, arrayOf("a"))
             .isValid()
 
-        assertThat(validation, emptyArray())
+        assertThat(validator, emptyArray())
             .isInvalid()
             .withErrorCount(1)
             .withHint("must have at least 1 items")
@@ -40,15 +40,15 @@ class CollectionsTest {
 
     @Test
     fun minItemsMapConstraint() {
-        val validation = Validation<Map<String, Int>> { minItems(1) }
+        val validator = Validator<Map<String, Int>> { minItems(1) }
 
-        assertThat(validation, mapOf("a" to 0, "b" to 1))
+        assertThat(validator, mapOf("a" to 0, "b" to 1))
             .isValid()
 
-        assertThat(validation, mapOf("a" to 0))
+        assertThat(validator, mapOf("a" to 0))
             .isValid()
 
-        assertThat(validation, emptyMap())
+        assertThat(validator, emptyMap())
             .isInvalid()
             .withErrorCount(1)
             .withHint("must have at least 1 items")
@@ -56,15 +56,15 @@ class CollectionsTest {
 
     @Test
     fun maxItemsIterableConstraint() {
-        val validation = Validation<List<String>> { maxItems(1) }
+        val validator = Validator<List<String>> { maxItems(1) }
 
-        assertThat(validation, emptyList())
+        assertThat(validator, emptyList())
             .isValid()
 
-        assertThat(validation, listOf("a"))
+        assertThat(validator, listOf("a"))
             .isValid()
 
-        assertThat(validation, listOf("a", "b"))
+        assertThat(validator, listOf("a", "b"))
             .isInvalid()
             .withErrorCount(1)
             .withHint("must have at most 1 items")
@@ -72,15 +72,15 @@ class CollectionsTest {
 
     @Test
     fun maxItemsArrayConstraint() {
-        val validation = Validation<Array<String>> { maxItems(1) }
+        val validator = Validator<Array<String>> { maxItems(1) }
 
-        assertThat(validation, emptyArray())
+        assertThat(validator, emptyArray())
             .isValid()
 
-        assertThat(validation, arrayOf("a"))
+        assertThat(validator, arrayOf("a"))
             .isValid()
 
-        assertThat(validation, arrayOf("a", "b"))
+        assertThat(validator, arrayOf("a", "b"))
             .isInvalid()
             .withErrorCount(1)
             .withHint("must have at most 1 items")
@@ -88,15 +88,15 @@ class CollectionsTest {
 
     @Test
     fun maxItemsMapConstraint() {
-        val validation = Validation<Map<String, Int>> { maxItems(1) }
+        val validator = Validator<Map<String, Int>> { maxItems(1) }
 
-        assertThat(validation, emptyMap())
+        assertThat(validator, emptyMap())
             .isValid()
 
-        assertThat(validation, mapOf("a" to 0))
+        assertThat(validator, mapOf("a" to 0))
             .isValid()
 
-        assertThat(validation, mapOf("a" to 0, "b" to 1))
+        assertThat(validator, mapOf("a" to 0, "b" to 1))
             .isInvalid()
             .withErrorCount(1)
             .withHint("must have at most 1 items")
@@ -104,15 +104,15 @@ class CollectionsTest {
 
     @Test
     fun minPropertiesConstraint() {
-        val validation = Validation<Map<String, Int>> { minProperties(1) }
+        val validator = Validator<Map<String, Int>> { minProperties(1) }
 
-        assertThat(validation, mapOf("a" to 0, "b" to 1))
+        assertThat(validator, mapOf("a" to 0, "b" to 1))
             .isValid()
 
-        assertThat(validation, mapOf("a" to 0))
+        assertThat(validator, mapOf("a" to 0))
             .isValid()
 
-        assertThat(validation, emptyMap())
+        assertThat(validator, emptyMap())
             .isInvalid()
             .withErrorCount(1)
             .withHint("must have at least 1 properties")
@@ -120,15 +120,15 @@ class CollectionsTest {
 
     @Test
     fun maxPropertiesConstraint() {
-        val validation = Validation<Map<String, Int>> { maxProperties(1) }
+        val validator = Validator<Map<String, Int>> { maxProperties(1) }
 
-        assertThat(validation, emptyMap())
+        assertThat(validator, emptyMap())
             .isValid()
 
-        assertThat(validation, mapOf("a" to 0))
+        assertThat(validator, mapOf("a" to 0))
             .isValid()
 
-        assertThat(validation, mapOf("a" to 0, "b" to 1))
+        assertThat(validator, mapOf("a" to 0, "b" to 1))
             .isInvalid()
             .withErrorCount(1)
             .withHint("must have at most 1 properties")
@@ -136,18 +136,18 @@ class CollectionsTest {
 
     @Test
     fun uniqueItemsIterableConstraint() {
-        val validation = Validation<List<String>> { uniqueItems(true) }
+        val validator = Validator<List<String>> { uniqueItems(true) }
 
-        assertThat(validation, emptyList())
+        assertThat(validator, emptyList())
             .isValid()
 
-        assertThat(validation, listOf("a"))
+        assertThat(validator, listOf("a"))
             .isValid()
 
-        assertThat(validation, listOf("a", "b"))
+        assertThat(validator, listOf("a", "b"))
             .isValid()
 
-        assertThat(validation, listOf("a", "a"))
+        assertThat(validator, listOf("a", "a"))
             .isInvalid()
             .withErrorCount(1)
             .withHint("all items must be unique")
@@ -155,18 +155,18 @@ class CollectionsTest {
 
     @Test
     fun uniqueItemsArrayConstraint() {
-        val validation = Validation<Array<String>> { uniqueItems(true) }
+        val validator = Validator<Array<String>> { uniqueItems(true) }
 
-        assertThat(validation, emptyArray())
+        assertThat(validator, emptyArray())
             .isValid()
 
-        assertThat(validation, arrayOf("a"))
+        assertThat(validator, arrayOf("a"))
             .isValid()
 
-        assertThat(validation, arrayOf("a", "b"))
+        assertThat(validator, arrayOf("a", "b"))
             .isValid()
 
-        assertThat(validation, arrayOf("a", "a"))
+        assertThat(validator, arrayOf("a", "a"))
             .isInvalid()
             .withErrorCount(1)
             .withHint("all items must be unique")

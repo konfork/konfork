@@ -8,13 +8,13 @@ import kotlin.test.Test
 class ReadmeExampleTest {
 
     @Test
-    fun simpleValidation() {
+    fun simpleValidator() {
         data class UserProfile(
             val fullName: String,
             val age: Int?
         )
 
-        val validateUser = Validation {
+        val validateUser = Validator {
             UserProfile::fullName {
                 minLength(2)
                 maxLength(100)
@@ -36,7 +36,7 @@ class ReadmeExampleTest {
     }
 
     @Test
-    fun complexValidation() {
+    fun complexValidator() {
         data class Person(val name: String, val email: String?, val age: Int)
 
         data class Event(
@@ -45,7 +45,7 @@ class ReadmeExampleTest {
             val ticketPrices: Map<String, Double?>
         )
 
-        val validateEvent = Validation {
+        val validateEvent = Validator {
             Event::organizer {
                 // even though the email is nullable you can force it to be set in the validation
                 Person::email required with {

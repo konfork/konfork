@@ -23,8 +23,8 @@ data class ValidationResultAssertion<E, T>(
         }
 }
 
-fun <E, T> assertThat(validation: Validation<Unit, T, E>, value: T): ValidationResultAssertion<E, T> =
-    ValidationResultAssertion(validation(value), value)
+fun <E, T> assertThat(validator: Validator<Unit, T, E>, value: T): ValidationResultAssertion<E, T> =
+    ValidationResultAssertion(validator(value), value)
 
-fun <C, E, T> assertThat(validation: Validation<C, T, E>, context: C, value: T): ValidationResultAssertion<E, T> =
-    ValidationResultAssertion(validation(context, value), value)
+fun <C, E, T> assertThat(validator: Validator<C, T, E>, context: C, value: T): ValidationResultAssertion<E, T> =
+    ValidationResultAssertion(validator(context, value), value)

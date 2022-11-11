@@ -1,12 +1,7 @@
 package io.github.konfork.core
 
 import io.github.konfork.core.internal.*
-import io.github.konfork.core.internal.ArrayValidationBuilder
 import io.github.konfork.core.internal.ComposableBuilder
-import io.github.konfork.core.internal.IterableValidationBuilder
-import io.github.konfork.core.internal.MapValidationBuilder
-import io.github.konfork.core.internal.OptionalValidationBuilder
-import io.github.konfork.core.internal.RequiredValidationBuilder
 import io.github.konfork.core.internal.NodeValidationsBuilder
 import kotlin.jvm.JvmName
 import kotlin.reflect.KFunction1
@@ -75,8 +70,8 @@ abstract class ValidationBuilder<C, T, E> {
     abstract fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: ValidationBuilder<C, R, E>.() -> Unit): HintedValidationBuilder<C, R, E>
     abstract fun <C, R> with(init: ValidationBuilder<C, R, String>.() -> Unit): HintedValidationBuilder<C, R, String>
 
-    abstract fun <S> run(validation: Validation<S, T, E>, map: (C) -> S)
-    fun run(validation: Validation<C, T, E>) = run(validation, ::identity)
+    abstract fun <S> run(validator: Validator<S, T, E>, map: (C) -> S)
+    fun run(validator: Validator<C, T, E>) = run(validator, ::identity)
 
     internal abstract fun add(builder: ComposableBuilder<C, T, E>)
 

@@ -1,6 +1,6 @@
 package io.github.konfork.core.validators
 
-import io.github.konfork.core.Validation
+import io.github.konfork.core.Validator
 import io.github.konfork.test.assertThat
 import kotlin.test.Test
 
@@ -8,22 +8,22 @@ class ObjectsTest {
 
     @Test
     fun typeStringConstraint() {
-        val validation = Validation<Any> { type<String>() }
+        val validator = Validator<Any> { type<String>() }
 
-        assertThat(validation, "This is a String")
+        assertThat(validator, "This is a String")
             .isValid()
 
-        assertThat(validation, 1)
+        assertThat(validator, 1)
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be of the correct type")
 
-        assertThat(validation, 1.0)
+        assertThat(validator, 1.0)
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be of the correct type")
 
-        assertThat(validation, true)
+        assertThat(validator, true)
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be of the correct type")
@@ -31,17 +31,17 @@ class ObjectsTest {
 
     @Test
     fun typeNumberConstraint() {
-        val validation = Validation<Any> { type<Int>() }
+        val validator = Validator<Any> { type<Int>() }
 
-        assertThat(validation, 1)
+        assertThat(validator, 1)
             .isValid()
 
-        assertThat(validation, "String")
+        assertThat(validator, "String")
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be of the correct type")
 
-        assertThat(validation, true)
+        assertThat(validator, true)
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be of the correct type")
@@ -49,20 +49,20 @@ class ObjectsTest {
 
     @Test
     fun genericTypeConstraint() {
-        val validation = Validation<String, Any> {
+        val validator = Validator<String, Any> {
             type<String, String, String> { _, t ->
                 "Expected object of type 'String'"
             }
         }
 
-        assertThat(validation, "context", "This is a String")
+        assertThat(validator, "context", "This is a String")
             .isValid()
 
-        assertThat(validation, "context", 1)
+        assertThat(validator, "context", 1)
             .isInvalid()
             .withErrorCount(1)
             .withHint("Expected object of type 'String'")
-        assertThat(validation, "context", true)
+        assertThat(validator, "context", true)
             .isInvalid()
             .withErrorCount(1)
             .withHint("Expected object of type 'String'")
@@ -70,26 +70,26 @@ class ObjectsTest {
 
     @Test
     fun nullableTypeConstraint() {
-        val validation = Validation<Any?> { type<String?>() }
+        val validator = Validator<Any?> { type<String?>() }
 
-        assertThat(validation, "This is a String")
+        assertThat(validator, "This is a String")
             .isValid()
 
-        assertThat(validation, null)
+        assertThat(validator, null)
             .isValid()
 
-        assertThat(validation, true)
+        assertThat(validator, true)
             .isInvalid()
     }
 
     @Test
     fun constConstraint() {
-        val validation = Validation { const("Konfork") }
+        val validator = Validator { const("Konfork") }
 
-        assertThat(validation, "Konfork")
+        assertThat(validator, "Konfork")
             .isValid()
 
-        assertThat(validation, "")
+        assertThat(validator, "")
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be 'Konfork'")
@@ -97,17 +97,17 @@ class ObjectsTest {
 
     @Test
     fun nullConstConstraint() {
-        val validation = Validation<String?> { const(null) }
+        val validator = Validator<String?> { const(null) }
 
-        assertThat(validation, null)
+        assertThat(validator, null)
             .isValid()
 
-        assertThat(validation, "")
+        assertThat(validator, "")
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be null")
 
-        assertThat(validation, "null")
+        assertThat(validator, "null")
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be null")
@@ -115,17 +115,17 @@ class ObjectsTest {
 
     @Test
     fun nonNullConstConstraint() {
-        val validation = Validation<String?> { const("Konfork") }
+        val validator = Validator<String?> { const("Konfork") }
 
-        assertThat(validation, "Konfork")
+        assertThat(validator, "Konfork")
             .isValid()
 
-        assertThat(validation, null)
+        assertThat(validator, null)
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be 'Konfork'")
 
-        assertThat(validation, "Konform")
+        assertThat(validator, "Konform")
             .isInvalid()
             .withErrorCount(1)
             .withHint("must be 'Konfork'")

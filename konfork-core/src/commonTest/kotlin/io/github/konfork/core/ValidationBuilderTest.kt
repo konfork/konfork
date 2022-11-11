@@ -25,38 +25,38 @@ class ValidationBuilderTest {
         matches("[0-9]".toRegex()) hint stringHint("must have at least one number")
 
     @Test
-    fun singleValidation() {
-        val validation = Validation {
+    fun singleValidator() {
+        val validator = Validator {
             Register::password {
                 minLength(1)
             }
         }
 
-        assertThat(validation, Register(password = "a"))
+        assertThat(validator, Register(password = "a"))
             .isValid()
 
-        assertThat(validation, Register(password = ""))
+        assertThat(validator, Register(password = ""))
             .isInvalid()
             .withErrorCount(1)
     }
 
     @Test
-    fun singleValidationWithContext() {
-        val validation = Validation<Set<String>, String> {
+    fun singleValidatorWithContext() {
+        val validator = Validator<Set<String>, String> {
             addConstraint("This value is not allowed!") { value -> this.contains(value) }
         }
 
-        assertThat(validation, setOf("a", "b"), "a")
+        assertThat(validator, setOf("a", "b"), "a")
             .isValid()
 
-        assertThat(validation, setOf("a", "b"), "c")
+        assertThat(validator, setOf("a", "b"), "c")
             .isInvalid()
             .withErrorCount(1)
     }
 
     @Test
-    fun disjunctValidations() {
-        val validation = Validation {
+    fun disjunctValidator() {
+        val validator = Validator {
             Register::password {
                 minLength(1)
             }
@@ -65,43 +65,43 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, Register(password = "a"))
+        assertThat(validator, Register(password = "a"))
             .isValid()
 
-        assertThat(validation, Register(password = ""))
+        assertThat(validator, Register(password = ""))
             .isInvalid()
             .withErrorCount(1)
-        assertThat(validation, Register(password = "aaaaaaaaaaa"))
+        assertThat(validator, Register(password = "aaaaaaaaaaa"))
             .isInvalid()
             .withErrorCount(1)
     }
 
     @Test
-    fun overlappingValidations() {
-        val validation = Validation {
+    fun overlappingValidators() {
+        val validator = Validator {
             Register::password {
                 minLength(8)
                 containsANumber()
             }
         }
 
-        assertThat(validation, Register(password = "verysecure1"))
+        assertThat(validator, Register(password = "verysecure1"))
             .isValid()
 
-        assertThat(validation, Register(password = "9"))
+        assertThat(validator, Register(password = "9"))
             .isInvalid()
             .withErrorCount(1)
-        assertThat(validation, Register(password = "insecure"))
+        assertThat(validator, Register(password = "insecure"))
             .isInvalid()
             .withErrorCount(1)
-        assertThat(validation, Register(password = "pass"))
+        assertThat(validator, Register(password = "pass"))
             .isInvalid()
             .withErrorCount(2)
     }
 
     @Test
-    fun lazySubValidation() {
-        val validation = Validation {
+    fun lazySubValidator() {
+        val validator = Validator {
             Register::password {
                 minLength(8)
                 lazy {
@@ -111,28 +111,28 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, Register(password = "pass"))
+        assertThat(validator, Register(password = "pass"))
             .isInvalid()
             .withErrorCount(2)
     }
 
     @Test
-    fun lazyPropertyValidation() {
-        val validation = Validation {
+    fun lazyPropertyValidator() {
+        val validator = Validator {
             Register::password lazy {
                 minLength(8)
                 containsANumber()
             }
         }
 
-        assertThat(validation, Register(password = "pass"))
+        assertThat(validator, Register(password = "pass"))
             .isInvalid()
             .withErrorCount(1)
     }
 
     @Test
-    fun eagerSubValidation() {
-        val validation = Validation {
+    fun eagerSubValidator() {
+        val validator = Validator {
             Register::password {
                 minLength(8)
                 eager {
@@ -142,28 +142,28 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, Register(password = "pass"))
+        assertThat(validator, Register(password = "pass"))
             .isInvalid()
             .withErrorCount(3)
     }
 
     @Test
-    fun eagerPropertyValidation() {
-        val validation = Validation {
+    fun eagerPropertyValidator() {
+        val validator = Validator {
             Register::password eager {
                 minLength(8)
                 containsANumber()
             }
         }
 
-        assertThat(validation, Register(password = "pass"))
+        assertThat(validator, Register(password = "pass"))
             .isInvalid()
             .withErrorCount(2)
     }
 
     @Test
     fun validatingMultipleFields() {
-        val validation = Validation {
+        val validator = Validator {
             Register::password {
                 minLength(8)
                 containsANumber()
@@ -174,17 +174,17 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, Register(email = "tester@test.com", password = "verysecure1"))
+        assertThat(validator, Register(email = "tester@test.com", password = "verysecure1"))
             .isValid()
 
-        assertThat(validation, Register(email = "tester@test.com"))
+        assertThat(validator, Register(email = "tester@test.com"))
             .isInvalid()
             .withErrorCount(2)
             .withErrorCount(2, Register::password)
-        assertThat(validation, Register(password = "verysecure1"))
+        assertThat(validator, Register(password = "verysecure1"))
             .isInvalid()
             .withErrorCount(1, Register::email)
-        assertThat(validation, Register())
+        assertThat(validator, Register())
             .isInvalid()
             .withErrorCount(3)
             .withErrorCount(1, Register::email)
@@ -193,57 +193,57 @@ class ValidationBuilderTest {
 
     @Test
     fun validatingNullableFields() {
-        val validation = Validation {
+        val validator = Validator {
             Register::referredBy ifPresent {
                 matches(".+@.+".toRegex())
             }
         }
 
-        assertThat(validation, Register(referredBy = null))
+        assertThat(validator, Register(referredBy = null))
             .isValid()
-        assertThat(validation, Register(referredBy = "poweruser@test.com"))
+        assertThat(validator, Register(referredBy = "poweruser@test.com"))
             .isValid()
 
-        assertThat(validation, Register(referredBy = "poweruser@"))
+        assertThat(validator, Register(referredBy = "poweruser@"))
             .isInvalid()
             .withErrorCount(1)
     }
 
     @Test
     fun validatingRequiredFields() {
-        val validation = Validation<Register> {
+        val validator = Validator {
             Register::referredBy required with {
                 matches(".+@.+".toRegex())
             }
         }
 
-        assertThat(validation, Register(referredBy = "poweruser@test.com"))
+        assertThat(validator, Register(referredBy = "poweruser@test.com"))
             .isValid()
 
-        assertThat(validation, Register(referredBy = null))
+        assertThat(validator, Register(referredBy = null))
             .isInvalid()
             .withErrorCount(1)
-        assertThat(validation, Register(referredBy = "poweruser@"))
+        assertThat(validator, Register(referredBy = "poweruser@"))
             .isInvalid()
             .withErrorCount(1)
     }
 
     @Test
     fun validatingRequiredFieldsWithCustomErrorType() {
-        val validation = Validation<Unit, Register, Errors> {
+        val validator = Validator<Unit, Register, Errors> {
             Register::referredBy required with(staticHint(ONE)) {
                 pattern(staticHint(TWO), ".+@.+")
             } hint staticHint(TWO)
         }
 
-        assertThat(validation, Register(referredBy = "poweruser@test.com"))
+        assertThat(validator, Register(referredBy = "poweruser@test.com"))
             .isValid()
 
-        assertThat(validation, Register(referredBy = null))
+        assertThat(validator, Register(referredBy = null))
             .isInvalid()
             .withErrorCount(1, Register::referredBy)
             .withHint(TWO, Register::referredBy)
-        assertThat(validation, Register(referredBy = "poweruser@"))
+        assertThat(validator, Register(referredBy = "poweruser@"))
             .isInvalid()
             .withErrorCount(1, Register::referredBy)
             .withHint(TWO, Register::referredBy)
@@ -251,7 +251,7 @@ class ValidationBuilderTest {
 
     @Test
     fun validatingNestedTypesDirectly() {
-        val validation = Validation {
+        val validator = Validator {
             Register::home ifPresent {
                 Address::address {
                     minLength(1)
@@ -259,69 +259,69 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, Register(home = Address("Home")))
+        assertThat(validator, Register(home = Address("Home")))
             .isValid()
 
-        assertThat(validation, Register(home = Address("")))
+        assertThat(validator, Register(home = Address("")))
             .isInvalid()
             .withErrorCount(1, Register::home, Address::address)
     }
 
     @Test
     fun validatingOptionalNullableValues() {
-        val validation = Validation<String?> {
+        val validator = Validator<String?> {
             ifPresent {
                 matches(".+@.+".toRegex())
             }
         }
 
-        assertThat(validation, null)
+        assertThat(validator, null)
             .isValid()
-        assertThat(validation, "poweruser@test.com")
+        assertThat(validator, "poweruser@test.com")
             .isValid()
 
-        assertThat(validation, "poweruser@")
+        assertThat(validator, "poweruser@")
             .isInvalid()
             .withErrorCount(1)
     }
 
     @Test
     fun validatingRequiredNullableValues() {
-        val validation = Validation<String?> {
+        val validator = Validator<String?> {
             required(stringHint("Whhoops!")) {
                 matches(".+@.+".toRegex())
             }
         }
 
-        assertThat(validation, "poweruser@test.com")
+        assertThat(validator, "poweruser@test.com")
             .isValid()
 
-        assertThat(validation, null)
+        assertThat(validator, null)
             .isInvalid()
             .withErrorCount(1)
-        assertThat(validation, "poweruser@")
+        assertThat(validator, "poweruser@")
             .isInvalid()
             .withErrorCount(1)
     }
 
     @Test
     fun alternativeSyntax() {
-        val validation = Validation {
+        val validator = Validator {
             Register::password.has.minLength(1)
             Register::password.has.maxLength(10)
             Register::email.has.matches(".+@.+".toRegex())
         }
 
-        assertThat(validation, Register(email = "tester@test.com", password = "a"))
+        assertThat(validator, Register(email = "tester@test.com", password = "a"))
             .isValid()
 
-        assertThat(validation, Register(email = "tester@test.com", password = ""))
+        assertThat(validator, Register(email = "tester@test.com", password = ""))
             .isInvalid()
             .withErrorCount(1, Register::password)
-        assertThat(validation, Register(email = "tester@test.com", password = "aaaaaaaaaaa"))
+        assertThat(validator, Register(email = "tester@test.com", password = "aaaaaaaaaaa"))
             .isInvalid()
             .withErrorCount(1, Register::password)
-        assertThat(validation, Register(email = "tester@"))
+        assertThat(validator, Register(email = "tester@"))
             .isInvalid()
             .withErrorCount(2)
     }
@@ -331,7 +331,7 @@ class ValidationBuilderTest {
 
         data class Data(val registrations: List<Register> = emptyList())
 
-        val validation = Validation {
+        val validator = Validator {
             Data::registrations onEach {
                 Register::email {
                     minLength(3)
@@ -339,13 +339,13 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, Data())
+        assertThat(validator, Data())
             .isValid()
 
-        assertThat(validation, Data(registrations = listOf(Register(email = "valid"), Register(email = "a"))))
+        assertThat(validator, Data(registrations = listOf(Register(email = "valid"), Register(email = "a"))))
             .isInvalid()
             .withErrorCount(1, Data::registrations, 1, Register::email)
-        assertThat(validation, Data(registrations = listOf(Register(email = "a"), Register(email = "ab"))))
+        assertThat(validator, Data(registrations = listOf(Register(email = "a"), Register(email = "ab"))))
             .isInvalid()
             .withErrorCount(2)
             .withErrorCount(1, Data::registrations, 1, Register::email)
@@ -356,7 +356,7 @@ class ValidationBuilderTest {
 
         data class Data(val registrations: List<Register>?)
 
-        val validation = Validation {
+        val validator = Validator {
             Data::registrations ifPresent {
                 minItems(1)
                 onEach {
@@ -367,16 +367,16 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, Data(null))
+        assertThat(validator, Data(null))
             .isValid()
 
-        assertThat(validation, Data(emptyList()))
+        assertThat(validator, Data(emptyList()))
             .isInvalid()
             .withErrorCount(1, Data::registrations)
-        assertThat(validation, Data(registrations = listOf(Register(email = "valid"), Register(email = "a"))))
+        assertThat(validator, Data(registrations = listOf(Register(email = "valid"), Register(email = "a"))))
             .isInvalid()
             .withErrorCount(1, Data::registrations, 1, Register::email)
-        assertThat(validation, Data(registrations = listOf(Register(email = "a"), Register(email = "ab"))))
+        assertThat(validator, Data(registrations = listOf(Register(email = "a"), Register(email = "ab"))))
             .isInvalid()
             .withErrorCount(2)
             .withErrorCount(1, Data::registrations, 0, Register::email)
@@ -388,7 +388,7 @@ class ValidationBuilderTest {
 
         data class Data(val registrations: Array<Register> = emptyArray())
 
-        val validation = Validation {
+        val validator = Validator {
             Data::registrations onEach {
                 Register::email {
                     minLength(3)
@@ -396,13 +396,13 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, Data())
+        assertThat(validator, Data())
             .isValid()
 
-        assertThat(validation, Data(registrations = arrayOf(Register(email = "valid"), Register(email = "a"))))
+        assertThat(validator, Data(registrations = arrayOf(Register(email = "valid"), Register(email = "a"))))
             .isInvalid()
             .withErrorCount(1, Data::registrations, 1, Register::email)
-        assertThat(validation, Data(registrations = arrayOf(Register(email = "a"), Register(email = "ab"))))
+        assertThat(validator, Data(registrations = arrayOf(Register(email = "a"), Register(email = "ab"))))
             .isInvalid()
             .withErrorCount(2)
             .withErrorCount(1, Data::registrations, 0, Register::email)
@@ -414,7 +414,7 @@ class ValidationBuilderTest {
 
         data class Data(val registrations: Array<Register>?)
 
-        val validation = Validation {
+        val validator = Validator {
             Data::registrations ifPresent {
                 minItems(1)
                 onEach {
@@ -425,16 +425,16 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, Data(null))
+        assertThat(validator, Data(null))
             .isValid()
 
-        assertThat(validation, Data(emptyArray()))
+        assertThat(validator, Data(emptyArray()))
             .isInvalid()
             .withErrorCount(1, Data::registrations)
-        assertThat(validation, Data(registrations = arrayOf(Register(email = "valid"), Register(email = "a"))))
+        assertThat(validator, Data(registrations = arrayOf(Register(email = "valid"), Register(email = "a"))))
             .isInvalid()
             .withErrorCount(1, Data::registrations, 1, Register::email)
-        assertThat(validation, Data(registrations = arrayOf(Register(email = "a"), Register(email = "ab"))))
+        assertThat(validator, Data(registrations = arrayOf(Register(email = "a"), Register(email = "ab"))))
             .isInvalid()
             .withErrorCount(2)
             .withErrorCount(1, Data::registrations, 0, Register::email)
@@ -443,7 +443,7 @@ class ValidationBuilderTest {
 
     @Test
     fun validateMaps() {
-        val validation = Validation {
+        val validator = Validator {
             MapData::registrations onEach {
                 Map.Entry<String, Register>::value {
                     Register::email {
@@ -453,11 +453,11 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, MapData())
+        assertThat(validator, MapData())
             .isValid()
 
         val data = MapData(mapOf("user1" to Register(email = "valid"), "user2" to Register(email = "a")))
-        assertThat(validation, data)
+        assertThat(validator, data)
             .isInvalid()
             .withErrorCount(0, MapData::registrations, "user1", Register::email)
             .withErrorCount(1, MapData::registrations, "user2", Register::email)
@@ -468,7 +468,7 @@ class ValidationBuilderTest {
 
         data class Data(val registrations: Map<String, Register>? = null)
 
-        val validation = Validation {
+        val validator = Validator {
             Data::registrations ifPresent  {
                 onEach {
                     Map.Entry<String, Register>::value {
@@ -480,13 +480,13 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, Data(null))
+        assertThat(validator, Data(null))
             .isValid()
 
-        assertThat(validation, Data(emptyMap()))
+        assertThat(validator, Data(emptyMap()))
             .isValid()
         val data = Data(registrations = mapOf("user1" to Register(email = "valid"), "user2" to Register(email = "a")))
-        assertThat(validation, data)
+        assertThat(validator, data)
             .isInvalid()
             .withErrorCount(0, Data::registrations, "user1", Register::email)
             .withErrorCount(1, Data::registrations, "user2", Register::email)
@@ -494,7 +494,7 @@ class ValidationBuilderTest {
 
     @Test
     fun validateMapValue() {
-        val validation = Validation {
+        val validator = Validator {
             MapData::registrations onEachValue {
                 Register::email {
                     minLength(2)
@@ -502,11 +502,11 @@ class ValidationBuilderTest {
             }
         }
 
-        assertThat(validation, MapData())
+        assertThat(validator, MapData())
             .isValid()
 
         val data = MapData(mapOf("user1" to Register(email = "valid"), "user2" to Register(email = "a")))
-        assertThat(validation, data)
+        assertThat(validator, data)
             .isInvalid()
             .withErrorCount(0, MapData::registrations, "user1", Register::email)
             .withErrorCount(1, MapData::registrations, "user2", Register::email)
@@ -514,44 +514,44 @@ class ValidationBuilderTest {
 
     @Test
     fun validateMapKey() {
-        val validation = Validation {
+        val validator = Validator {
             MapData::registrations onEachKey {
                 minLength(2)
             }
         }
 
-        assertThat(validation, MapData())
+        assertThat(validator, MapData())
             .isValid()
 
         val data = MapData(mapOf("user1" to Register(email = "valid"), "u" to Register(email = "a")))
-        assertThat(validation, data)
+        assertThat(validator, data)
             .isInvalid()
             .withErrorCount(0, MapData::registrations, "user1")
             .withErrorCount(1, MapData::registrations, "u#key")
     }
 
     @Test
-    fun composeValidations() {
-        val addressValidation = Validation {
+    fun composeValidators() {
+        val addressValidator = Validator {
             Address::address {
                 minLength(1)
             }
         }
 
-        val validation = Validation {
+        val validator = Validator {
             Register::home ifPresent {
-                run(addressValidation)
+                run(addressValidator)
             }
         }
 
-        assertThat(validation, Register(home = Address()))
+        assertThat(validator, Register(home = Address()))
             .isInvalid()
             .withErrorCount(1)
     }
 
     @Test
-    fun composeValidationsWithContext() {
-        val addressValidation = Validation<AddressContext, Address> {
+    fun composeValidatorsWithContext() {
+        val addressValidator = Validator<AddressContext, Address> {
             Address::address.has.minLength(1)
             Address::country {
                 addConstraint("Country is not allowed") {
@@ -560,26 +560,26 @@ class ValidationBuilderTest {
             }
         }
 
-        val validation = Validation<RegisterContext, Register> {
+        val validator = Validator<RegisterContext, Register> {
             Register::home ifPresent {
-                run(addressValidation, RegisterContext::subContext)
+                run(addressValidator, RegisterContext::subContext)
             }
         }
 
-        assertThat(validation, RegisterContext(), Register(home = Address()))
+        assertThat(validator, RegisterContext(), Register(home = Address()))
             .isInvalid()
             .withErrorCount(1)
     }
 
     @Test
     fun replacePlaceholderInString() {
-        val validation = Validation<Register> {
+        val validator = Validator {
             Register::password {
                 minLength(8)
             }
         }
 
-        assertThat(validation, Register(password = ""))
+        assertThat(validator, Register(password = ""))
             .isInvalid()
             .withErrorCount(1, Register::password)
             .withHintMatches(".*8.*", Register::password)

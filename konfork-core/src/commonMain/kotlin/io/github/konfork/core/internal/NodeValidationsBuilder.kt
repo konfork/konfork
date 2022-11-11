@@ -6,7 +6,7 @@ import kotlin.collections.Map.Entry
 internal class NodeValidationsBuilder<C, T, E> : ValidationBuilder<C, T, E>() {
     private val subBuilders = mutableListOf<ComposableBuilder<C, T, E>>()
 
-    fun build(): List<Validation<C, T, E>> =
+    fun build(): List<Validator<C, T, E>> =
         subBuilders.map(ComposableBuilder<C, T, E>::build)
 
     override fun addConstraint(hint: HintBuilder<C, T, E>, vararg values: Any, test: (C, T) -> Boolean): ConstraintBuilder<C, T, E> =
@@ -53,8 +53,8 @@ internal class NodeValidationsBuilder<C, T, E> : ValidationBuilder<C, T, E>() {
     override fun <C, R> with(init: ValidationBuilder<C, R, String>.() -> Unit): HintedValidationBuilder<C, R, String> =
         HintedValidationBuilder(stringHint("is required"), init)
 
-    override fun <S> run(validation: Validation<S, T, E>, map: (C) -> S) =
-        add(PrebuildValidationBuilder(validation, map))
+    override fun <S> run(validator: Validator<S, T, E>, map: (C) -> S) =
+        add(PrebuildValidationBuilder(validator, map))
 
     override fun <R> has(name: String, mapFn: (T) -> R): ValidationBuilder<C, R, E> =
         NodeValidationsBuilder<C, R, E>()
