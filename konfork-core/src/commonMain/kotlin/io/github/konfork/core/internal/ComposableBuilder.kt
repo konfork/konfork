@@ -16,14 +16,14 @@ internal class PropertyValidationBuilder<C, T, V, E>(
 }
 
 internal class LazyValidationNodeBuilder<C, T, E>(
-    private val subBuilder: NodeValidationsBuilder<C, T, E>,
+    private val subBuilder: ValidatorsBuilder<C, T, E>,
 ) : ComposableBuilder<C, T, E> {
     override fun build(): Validator<C, T, E> =
         LazyValidatorNode(subBuilder.build())
 }
 
 internal class EagerValidationNodeBuilder<C, T, E>(
-    private val subBuilder: NodeValidationsBuilder<C, T, E>,
+    private val subBuilder: ValidatorsBuilder<C, T, E>,
 ) : ComposableBuilder<C, T, E> {
     override fun build(): Validator<C, T, E> =
         EagerValidatorNode(subBuilder.build())

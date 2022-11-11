@@ -2,7 +2,7 @@ package io.github.konfork.core
 
 import io.github.konfork.core.internal.*
 import io.github.konfork.core.internal.ComposableBuilder
-import io.github.konfork.core.internal.NodeValidationsBuilder
+import io.github.konfork.core.internal.ValidatorsBuilder
 import kotlin.jvm.JvmName
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
@@ -116,4 +116,4 @@ fun <C, K, V, T : Map<K, V>, E> Specification<C, T, E>.onEachKey(init: Specifica
     add(MapKeyValidationBuilder<C, K, V, E>(eagerBuilder(init)) as ComposableBuilder<C, T, E>)
 
 internal fun <C, T, E> eagerBuilder(init: Specification<C, T, E>.() -> Unit): EagerValidationNodeBuilder<C, T, E> =
-    EagerValidationNodeBuilder(NodeValidationsBuilder<C, T, E>().also(init))
+    EagerValidationNodeBuilder(ValidatorsBuilder<C, T, E>().also(init))

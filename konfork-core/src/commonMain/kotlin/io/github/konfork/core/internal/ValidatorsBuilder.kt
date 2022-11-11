@@ -3,7 +3,7 @@ package io.github.konfork.core.internal
 import io.github.konfork.core.*
 import kotlin.collections.Map.Entry
 
-internal class NodeValidationsBuilder<C, T, E> : Specification<C, T, E>() {
+internal class ValidatorsBuilder<C, T, E> : Specification<C, T, E>() {
     private val subBuilders = mutableListOf<ComposableBuilder<C, T, E>>()
 
     fun build(): List<Validator<C, T, E>> =
@@ -57,14 +57,14 @@ internal class NodeValidationsBuilder<C, T, E> : Specification<C, T, E>() {
         add(PrebuildValidationBuilder(validator, map))
 
     override fun <R> has(name: String, mapFn: (T) -> R): Specification<C, R, E> =
-        NodeValidationsBuilder<C, R, E>()
+        ValidatorsBuilder<C, R, E>()
             .also { add(PropertyValidationBuilder(EagerValidationNodeBuilder(it), name, mapFn)) }
 
     private fun <D, S> eagerBuilder(init: Specification<D, S, E>.() -> Unit) =
-        EagerValidationNodeBuilder(NodeValidationsBuilder<D, S, E>().also(init))
+        EagerValidationNodeBuilder(ValidatorsBuilder<D, S, E>().also(init))
 
     private fun <D, S> lazyBuilder(init: Specification<D, S, E>.() -> Unit) =
-        LazyValidationNodeBuilder(NodeValidationsBuilder<D, S, E>().also(init))
+        LazyValidationNodeBuilder(ValidatorsBuilder<D, S, E>().also(init))
 
     override fun add(builder: ComposableBuilder<C, T, E>) {
         subBuilders.add(builder)
