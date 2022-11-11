@@ -39,6 +39,19 @@ class ReadmeExampleTest {
     fun complexValidator() {
         data class Person(val name: String, val email: String?, val age: Int)
 
+        fun <C> Specification<C, Person, String>.attendeeValidator() {
+            Person::name {
+                minLength(2)
+            }
+            Person::age {
+                minimum(18) hint "Attendees must be 18 years or older"
+            }
+            // Email is optional but if it is set it must be valid
+            Person::email ifPresent {
+                pattern("\\w+@\\w+\\.\\w+") hint "Please provide a valid email address (optional)"
+            }
+        }
+
         data class Event(
             val organizer: Person,
             val attendees: List<Person>,
@@ -59,18 +72,7 @@ class ReadmeExampleTest {
             }
 
             // validation on individual attendees
-            Event::attendees onEach {
-                Person::name {
-                    minLength(2)
-                }
-                Person::age {
-                    minimum(18) hint "Attendees must be 18 years or older"
-                }
-                // Email is optional but if it is set it must be valid
-                Person::email ifPresent {
-                    pattern("\\w+@\\w+\\.\\w+") hint "Please provide a valid email address (optional)"
-                }
-            }
+            Event::attendees onEach { attendeeValidator() }
 
             // validation on the ticketPrices Map as a whole
             Event::ticketPrices {
