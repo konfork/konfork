@@ -4,10 +4,10 @@ import io.github.konfork.core.*
 import kotlin.collections.Map.Entry
 
 internal class ValidatorsBuilder<C, T, E> : Specification<C, T, E>() {
-    private val subBuilders = mutableListOf<ComposableBuilder<C, T, E>>()
+    private val subBuilders = mutableListOf<ValidatorBuilder<C, T, E>>()
 
     fun build(): List<Validator<C, T, E>> =
-        subBuilders.map(ComposableBuilder<C, T, E>::build)
+        subBuilders.map(ValidatorBuilder<C, T, E>::build)
 
     override fun addConstraint(hint: HintBuilder<C, T, E>, vararg values: Any, test: (C, T) -> Boolean): ConstraintBuilder<C, T, E> =
         ConstraintValidationBuilder(hint, values.toList(), test).also(::add)
@@ -66,7 +66,7 @@ internal class ValidatorsBuilder<C, T, E> : Specification<C, T, E>() {
     private fun <D, S> lazyBuilder(init: Specification<D, S, E>.() -> Unit) =
         LazyValidationNodeBuilder(ValidatorsBuilder<D, S, E>().also(init))
 
-    override fun add(builder: ComposableBuilder<C, T, E>) {
+    override fun add(builder: ValidatorBuilder<C, T, E>) {
         subBuilders.add(builder)
     }
 }

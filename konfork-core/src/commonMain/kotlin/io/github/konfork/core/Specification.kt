@@ -1,7 +1,7 @@
 package io.github.konfork.core
 
 import io.github.konfork.core.internal.*
-import io.github.konfork.core.internal.ComposableBuilder
+import io.github.konfork.core.internal.ValidatorBuilder
 import io.github.konfork.core.internal.ValidatorsBuilder
 import kotlin.jvm.JvmName
 import kotlin.reflect.KFunction1
@@ -73,7 +73,7 @@ abstract class Specification<C, T, E> {
     abstract fun <S> run(validator: Validator<S, T, E>, map: (C) -> S)
     fun run(validator: Validator<C, T, E>) = run(validator, ::identity)
 
-    internal abstract fun add(builder: ComposableBuilder<C, T, E>)
+    internal abstract fun add(builder: ValidatorBuilder<C, T, E>)
 
     val <R> KProperty1<T, R>.has: Specification<C, R, E> get() = has(this.name, this)
     val <R> KFunction1<T, R>.has: Specification<C, R, E> get() = has(this.name, this)
@@ -94,7 +94,7 @@ fun <C, T : Any, E> Specification<C, T?, E>.required(hint: HintBuilder<C, T?, E>
 @JvmName("onEachIterable")
 @Suppress("UNCHECKED_CAST")
 fun <C, S, T : Iterable<S>, E> Specification<C, T, E>.onEach(init: Specification<C, S, E>.() -> Unit) =
-    add(IterableValidationBuilder(eagerBuilder(init)) as ComposableBuilder<C, T, E>)
+    add(IterableValidationBuilder(eagerBuilder(init)) as ValidatorBuilder<C, T, E>)
 
 @JvmName("onEachArray")
 fun <C, T, E> Specification<C, Array<T>, E>.onEach(init: Specification<C, T, E>.() -> Unit) =
@@ -103,17 +103,17 @@ fun <C, T, E> Specification<C, Array<T>, E>.onEach(init: Specification<C, T, E>.
 @JvmName("onEachMap")
 @Suppress("UNCHECKED_CAST")
 fun <C, K, V, T : Map<K, V>, E> Specification<C, T, E>.onEach(init: Specification<C, Map.Entry<K, V>, E>.() -> Unit) =
-    add(MapValidationBuilder(eagerBuilder(init)) as ComposableBuilder<C, T, E>)
+    add(MapValidationBuilder(eagerBuilder(init)) as ValidatorBuilder<C, T, E>)
 
 @JvmName("onEachMapValue")
 @Suppress("UNCHECKED_CAST")
 fun <C, K, V, T : Map<K, V>, E> Specification<C, T, E>.onEachValue(init: Specification<C, V, E>.() -> Unit) =
-    add(MapValueValidationBuilder<C, K, V, E>(eagerBuilder(init)) as ComposableBuilder<C, T, E>)
+    add(MapValueValidationBuilder<C, K, V, E>(eagerBuilder(init)) as ValidatorBuilder<C, T, E>)
 
 @JvmName("onEachMapKey")
 @Suppress("UNCHECKED_CAST")
 fun <C, K, V, T : Map<K, V>, E> Specification<C, T, E>.onEachKey(init: Specification<C, K, E>.() -> Unit) =
-    add(MapKeyValidationBuilder<C, K, V, E>(eagerBuilder(init)) as ComposableBuilder<C, T, E>)
+    add(MapKeyValidationBuilder<C, K, V, E>(eagerBuilder(init)) as ValidatorBuilder<C, T, E>)
 
 internal fun <C, T, E> eagerBuilder(init: Specification<C, T, E>.() -> Unit): EagerValidationNodeBuilder<C, T, E> =
     EagerValidationNodeBuilder(ValidatorsBuilder<C, T, E>().also(init))
