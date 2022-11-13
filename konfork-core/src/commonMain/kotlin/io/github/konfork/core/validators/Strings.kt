@@ -4,6 +4,10 @@ import io.github.konfork.core.ConstraintBuilder
 import io.github.konfork.core.HintBuilder
 import io.github.konfork.core.Specification
 import io.github.konfork.core.stringHint
+import io.github.konfork.predicates.isAllDigits
+import io.github.konfork.predicates.isNilUuid
+import io.github.konfork.predicates.isUuid
+import io.github.konfork.predicates.isUuidVersion
 
 fun <C, E> Specification<C, String, E>.minLength(hint: HintBuilder<C, String, E>, length: Int): ConstraintBuilder<C, String, E> {
     require(length >= 0) { IllegalArgumentException("minLength requires the length to be >= 0") }
@@ -31,3 +35,27 @@ fun <C, E> Specification<C, String, E>.pattern(hint: HintBuilder<C, String, E>, 
 
 fun <C> Specification<C, String, String>.pattern(pattern: String) =
     pattern(pattern.toRegex())
+
+fun <C, E> Specification<C, String, E>.uuid(hint: HintBuilder<C, String, E>) =
+    addConstraint(hint) { isUuid(it) }
+
+fun <C> Specification<C, String, String>.uuid() =
+    uuid(stringHint("is not a valid uuid"))
+
+fun <C, E> Specification<C, String, E>.uuid(hint: HintBuilder<C, String, E>, version: Int) =
+    addConstraint(hint, version) { isUuidVersion(1)(it) }
+
+fun <C> Specification<C, String, String>.uuid(version: Int) =
+    uuid(stringHint("is not a valid uuid version {1}"), version)
+
+fun <C, E> Specification<C, String, E>.nilUuid(hint: HintBuilder<C, String, E>) =
+    addConstraint(hint) { isNilUuid(it) }
+
+fun <C> Specification<C, String, String>.nilUuid() =
+    nilUuid(stringHint("is not the nil uuid"))
+
+fun <C, E> Specification<C, String, E>.allDigits(hint: HintBuilder<C, String, E>) =
+    addConstraint(hint) { isAllDigits(it) }
+
+fun <C> Specification<C, String, String>.allDigits() =
+    allDigits(stringHint("is not all digits"))
