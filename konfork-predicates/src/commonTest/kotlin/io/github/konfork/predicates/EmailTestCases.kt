@@ -1,6 +1,6 @@
 package io.github.konfork.predicates
 
-data class EmailTestCases(
+class EmailTestCases {
     val valid: List<String> = listOf(
         "email@example.com",
         "firstname.lastname@example.com",
@@ -19,7 +19,7 @@ data class EmailTestCases(
         // "much.”more\\ unusual”@example.com",
         // "very.unusual.”@”.unusual.com@example.com",
         // "very.”(),:;<>[]”.VERY.”very@\\\\ \"very”.unusual@strange.example.com"
-    ),
+    )
     val invalid: List<String> = listOf(
         "plainaddress",
         "#@%^%#\$@#\$@#.com",
@@ -38,9 +38,8 @@ data class EmailTestCases(
         // "email@111.222.333.44444",
         "email@example..com",
         "Abc..123@example.com",
-        "List of Strange Invalid Email Addresses",
         "”(),:;<>[\\]@example.com",
         "just”not”right@example.com",
         "this\\ is\"really\"not\\allowed@example.com"
     )
-)
+}
