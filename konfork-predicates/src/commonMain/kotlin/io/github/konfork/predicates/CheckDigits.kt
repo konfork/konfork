@@ -11,6 +11,11 @@ fun isEan(length: Int): (String) -> Boolean {
     }
 }
 
+fun isLuhn(s: String): Boolean =
+    isAllDigits(s) && validateMod10Checksum(s, 1, 2) { l, r ->
+        (l * r).let { (it / 10) + (it % 10) }
+    }
+
 private fun isMod10(s: String, evenWeight: Int, oddWeight: Int, map: (Int, Int) -> Int): Boolean =
     isAllDigits(s) && validateMod10Checksum(s, evenWeight, oddWeight, map)
 

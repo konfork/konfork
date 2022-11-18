@@ -1,6 +1,7 @@
 package io.github.konfork.predicates
 
 import io.github.konfork.predicates.cases.EanCases
+import io.github.konfork.predicates.cases.LuhnCases
 import io.github.konfork.predicates.cases.Mod10Cases
 import io.github.konfork.predicates.util.assert
 import kotlin.test.Test
@@ -21,5 +22,11 @@ class CheckDigitsTests {
         assert(cases.valid13, cases.invalid13, isEan(13))
         assert(cases.valid14, cases.invalid14, isEan(14))
         assert(cases.valid18, cases.invalid18, isEan(18))
+    }
+
+    @Test
+    fun isLuhnTest() {
+        val cases = LuhnCases()
+        assert(cases.valid, cases.invalid, ::isLuhn)
     }
 }
