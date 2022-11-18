@@ -1,4 +1,4 @@
-package io.github.konfork.predicates
+package io.github.konfork.predicates.util
 
 import kotlin.test.assertEquals
 

@@ -1,4 +1,4 @@
-package io.github.konfork.predicates
+package io.github.konfork.predicates.cases
 
 class EmailTestCases {
     val valid: List<String> = listOf(
@@ -22,6 +22,7 @@ class EmailTestCases {
     )
     val invalid: List<String> = listOf(
         "plainaddress",
+        "email@example.com ",
         "#@%^%#\$@#\$@#.com",
         "@example.com",
         "Joe Smith <email@example.com>",

@@ -1,4 +1,4 @@
-package io.github.konfork.predicates
+package io.github.konfork.predicates.cases
 
 class UuidTestCases {
     private val invalid: List<String> = listOf(
