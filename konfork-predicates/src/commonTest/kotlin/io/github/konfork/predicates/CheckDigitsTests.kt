@@ -9,5 +9,6 @@ class CheckDigitsTests {
     fun isMod10Test() {
         val cases = Mod10Cases()
         assert(cases.valid13, cases.invalid13, isMod10(1, 3))
+        assert(cases.valid12, cases.invalid12, isMod10(1, 2))
     }
 }
