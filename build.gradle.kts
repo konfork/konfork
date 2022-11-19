@@ -23,11 +23,11 @@ fun cleanVersion(details: VersionDetails): String =
     else
         details.version
 
-nexusPublishing {
-    repositories {
-        sonatype {
-            username.set(System.getenv("OSSRH_USER") ?: return@sonatype)
-            password.set(System.getenv("OSSRH_PASSWORD") ?: return@sonatype)
-        }
-    }
-}
+//nexusPublishing {
+//    repositories {
+//        sonatype {
+//            username.set(System.getenv("OSSRH_USER") ?: return@sonatype)
+//            password.set(System.getenv("OSSRH_PASSWORD") ?: return@sonatype)
+//        }
+//    }
+//}
