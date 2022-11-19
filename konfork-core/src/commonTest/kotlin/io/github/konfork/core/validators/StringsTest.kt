@@ -40,6 +40,18 @@ class StringsTest {
     }
 
     @Test
+    fun lengthInConstraint() {
+        val validator = Validator { lengthIn(4..10) }
+
+        assertThat(validator, "HelloWorld")
+            .isValid()
+
+        assertThat(validator, "Hello World")
+            .isInvalid()
+            .withHint("must have at least 4 and at most 10 characters")
+    }
+
+    @Test
     fun patternConstraint() {
         val validator = Validator { pattern(".+@.+") }
 

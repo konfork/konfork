@@ -21,6 +21,14 @@ fun <C, E> Specification<C, String, E>.maxLength(hint: HintBuilder<C, String, E>
 fun <C> Specification<C, String, String>.maxLength(length: Int) =
     maxLength(stringHint("must have at most {0} characters"), length)
 
+fun <C, E> Specification<C, String, E>.lengthIn(hint: HintBuilder<C, String, E>, range: IntRange): ConstraintBuilder<C, String, E> {
+    require(range.first >= 0 && range.last >= 0) { IllegalArgumentException("lengthIn requires the length to be >= 0") }
+    return addConstraint(hint, range.first, range.last) { it.length in range }
+}
+
+fun <C> Specification<C, String, String>.lengthIn(range: IntRange) =
+    lengthIn(stringHint("must have at least {0} and at most {1} characters"), range)
+
 fun <C, E> Specification<C, String, E>.pattern(hint: HintBuilder<C, String, E>, pattern: Regex) =
     addConstraint(hint, pattern) { it.matches(pattern) }
 

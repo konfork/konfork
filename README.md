@@ -72,7 +72,7 @@ This projects aim is to add these features.
 - [ ] Add validation: Verhoeff
 - [ ] Add validation: URL
 - [ ] Add validation: isDate
-- [ ] Add validation: lengthIn (range)
+- [x] Add validation: lengthIn (range)
 - [ ] Add Number validations: inRange
 - [x] Add separate module with password strength validation nbvcxz
 - [ ] Add separate module for utils for interoperability with Arrow
