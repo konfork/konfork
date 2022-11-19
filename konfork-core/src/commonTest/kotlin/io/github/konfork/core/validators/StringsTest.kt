@@ -57,7 +57,7 @@ class StringsTest {
 
     @Test
     fun precompiledPatternConstraint() {
-        val validator = Validator { pattern("^\\w+@\\w+\\.\\w+$".toRegex()) }
+        val validator = Validator { pattern("\\w+@\\w+\\.\\w+".toRegex()) }
 
         assertThat(validator, "tester@example.com")
             .isValid()
@@ -71,5 +71,139 @@ class StringsTest {
         assertThat(validator, "tester@example.com ")
             .isInvalid()
             .withHint("must match the expected pattern")
+    }
+
+    @Test
+    fun uuidConstraint() {
+        val validator = Validator { uuid() }
+
+        assertThat(validator, "c63f510c-6214-11ed-9b6a-0242ac120002")
+            .isValid()
+
+        assertThat(validator, "tester@example.com")
+            .isInvalid()
+            .withHint("is not a valid uuid")
+    }
+
+    @Test
+    fun uuidWithVersionConstraint() {
+        val validator = Validator { uuid(1) }
+
+        assertThat(validator, "c63f510c-6214-11ed-9b6a-0242ac120002")
+            .isValid()
+
+        assertThat(validator, "c63f510c-6214-21ed-9b6a-0242ac120002")
+            .isInvalid()
+            .withHint("is not a valid uuid version 1")
+    }
+
+    @Test
+    fun nilUuidConstraint() {
+        val validator = Validator { nilUuid() }
+
+        assertThat(validator, "00000000-0000-0000-0000-000000000000")
+            .isValid()
+
+        assertThat(validator, "c63f510c-6214-21ed-9b6a-0242ac120002")
+            .isInvalid()
+            .withHint("is not the nil uuid")
+    }
+
+    @Test
+    fun allDigitsConstraint() {
+        val validator = Validator { allDigits() }
+
+        assertThat(validator, "1234567890")
+            .isValid()
+
+        assertThat(validator, "123456789X")
+            .isInvalid()
+            .withHint("is not all digits")
+    }
+
+    @Test
+    fun isbnConstraint() {
+        val validator = Validator { isbn() }
+
+        assertThat(validator, "3-598-21507-X")
+            .isValid()
+        assertThat(validator, "9781486010974")
+            .isValid()
+
+        assertThat(validator, "1234567899")
+            .isInvalid()
+            .withHint("is not a valid isbn")
+    }
+
+    @Test
+    fun isbn10Constraint() {
+        val validator = Validator { isbn10() }
+
+        assertThat(validator, "3-598-21507-X")
+            .isValid()
+
+        assertThat(validator, "9781486010974")
+            .isInvalid()
+            .withHint("is not a valid isbn10")
+    }
+
+    @Test
+    fun isbn13Constraint() {
+        val validator = Validator { isbn13() }
+
+        assertThat(validator, "9781486010974")
+            .isValid()
+
+        assertThat(validator, "3-598-21507-X")
+            .isInvalid()
+            .withHint("is not a valid isbn13")
+    }
+
+    @Test
+    fun mod10Constraint() {
+        val validator = Validator { mod10(1, 3) }
+
+        assertThat(validator, "098412808666")
+            .isValid()
+
+        assertThat(validator, "3-598-21507-X")
+            .isInvalid()
+            .withHint("does not have a valid mod10 check digit")
+    }
+
+    @Test
+    fun eanConstraint() {
+        val validator = Validator { ean(12) }
+
+        assertThat(validator, "098412808666")
+            .isValid()
+
+        assertThat(validator, "74709960")
+            .isInvalid()
+            .withHint("is not a valid ean12")
+    }
+
+    @Test
+    fun luhnConstraint() {
+        val validator = Validator { luhn() }
+
+        assertThat(validator, "234567891234")
+            .isValid()
+
+        assertThat(validator, "74709960")
+            .isInvalid()
+            .withHint("does not have a valid luhn check digit")
+    }
+
+    @Test
+    fun mod11Constraint() {
+        val validator = Validator { mod11(7, 2) }
+
+        assertThat(validator, "324324234235")
+            .isValid()
+
+        assertThat(validator, "74709960")
+            .isInvalid()
+            .withHint("does not have a valid mod11 check digit")
     }
 }

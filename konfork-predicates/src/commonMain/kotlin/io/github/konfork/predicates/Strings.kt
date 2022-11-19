@@ -17,7 +17,7 @@ private fun uuidRegexPattern(version: String): String =
 private fun uuidRegex(version: Int): Regex = Regex(uuidRegexPattern(version.toString()), IGNORE_CASE)
 
 private const val nilUuidRegex = "00000000-0000-0000-0000-000000000000"
-private val uuidRegex = Regex(uuidRegexPattern("1-5") + "|^" + nilUuidRegex + "$", IGNORE_CASE)
+private val uuidRegex = Regex(uuidRegexPattern("1-5") + "|" + nilUuidRegex, IGNORE_CASE)
 private val uuid1Regex = uuidRegex(1)
 private val uuid2Regex = uuidRegex(2)
 private val uuid3Regex = uuidRegex(3)

@@ -4,10 +4,7 @@ import io.github.konfork.core.ConstraintBuilder
 import io.github.konfork.core.HintBuilder
 import io.github.konfork.core.Specification
 import io.github.konfork.core.stringHint
-import io.github.konfork.predicates.isAllDigits
-import io.github.konfork.predicates.isNilUuid
-import io.github.konfork.predicates.isUuid
-import io.github.konfork.predicates.isUuidVersion
+import io.github.konfork.predicates.*
 
 fun <C, E> Specification<C, String, E>.minLength(hint: HintBuilder<C, String, E>, length: Int): ConstraintBuilder<C, String, E> {
     require(length >= 0) { IllegalArgumentException("minLength requires the length to be >= 0") }
@@ -46,7 +43,7 @@ fun <C, E> Specification<C, String, E>.uuid(hint: HintBuilder<C, String, E>, ver
     addConstraint(hint, version) { isUuidVersion(1)(it) }
 
 fun <C> Specification<C, String, String>.uuid(version: Int) =
-    uuid(stringHint("is not a valid uuid version {1}"), version)
+    uuid(stringHint("is not a valid uuid version {0}"), version)
 
 fun <C, E> Specification<C, String, E>.nilUuid(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { isNilUuid(it) }
@@ -59,3 +56,51 @@ fun <C, E> Specification<C, String, E>.allDigits(hint: HintBuilder<C, String, E>
 
 fun <C> Specification<C, String, String>.allDigits() =
     allDigits(stringHint("is not all digits"))
+
+fun <C, E> Specification<C, String, E>.isbn(hint: HintBuilder<C, String, E>) =
+    addConstraint(hint) { isIsbn(it) }
+
+fun <C> Specification<C, String, String>.isbn() =
+    isbn(stringHint("is not a valid isbn"))
+
+fun <C, E> Specification<C, String, E>.isbn10(hint: HintBuilder<C, String, E>) =
+    addConstraint(hint) { isIsbn10(it) }
+
+fun <C> Specification<C, String, String>.isbn10() =
+    isbn10(stringHint("is not a valid isbn10"))
+
+fun <C, E> Specification<C, String, E>.isbn13(hint: HintBuilder<C, String, E>) =
+    addConstraint(hint) { isIsbn13(it) }
+
+fun <C> Specification<C, String, String>.isbn13() =
+    isbn13(stringHint("is not a valid isbn13"))
+
+fun <C, E> Specification<C, String, E>.mod10(hint: HintBuilder<C, String, E>, evenWeight: Int, oddWeight: Int) {
+    val mod10Fn = isMod10(evenWeight, oddWeight)
+    addConstraint(hint) { mod10Fn(it) }
+}
+
+fun <C> Specification<C, String, String>.mod10(evenWeight: Int, oddWeight: Int) =
+    mod10(stringHint("does not have a valid mod10 check digit"), evenWeight, oddWeight)
+
+fun <C, E> Specification<C, String, E>.ean(hint: HintBuilder<C, String, E>, length: Int) {
+    val eanFn = isEan(length)
+    addConstraint(hint, length) { eanFn(it) }
+}
+
+fun <C> Specification<C, String, String>.ean(length: Int) =
+    ean(stringHint("is not a valid ean{0}"), length)
+
+fun <C, E> Specification<C, String, E>.luhn(hint: HintBuilder<C, String, E>) =
+    addConstraint(hint) { isLuhn(it) }
+
+fun <C> Specification<C, String, String>.luhn() =
+    luhn(stringHint("does not have a valid luhn check digit"))
+
+fun <C, E> Specification<C, String, E>.mod11(hint: HintBuilder<C, String, E>, startWeight: Int, endWeight: Int) {
+    val mod11Fn = isMod11(startWeight, endWeight)
+    addConstraint(hint) { mod11Fn(it) }
+}
+
+fun <C> Specification<C, String, String>.mod11(startWeight: Int, endWeight: Int) =
+    mod11(stringHint("does not have a valid mod11 check digit"), startWeight, endWeight)
