@@ -68,8 +68,11 @@ This projects aim is to add these features.
 ## TODO
 
 - [ ] Add multipleOf validations for Long and Int using modulo
-- [ ] Add String validations: isDate, isEmail, lengthIn (range), URL, checkdigit (EAN, mod10, mod13, luhn, ISBN,
-      Verhoeff)
+- [x] Add validations: isEmail, checkdigit (EAN, mod10, mod11, luhn, ISBN)
+- [ ] Add validation: Verhoeff
+- [ ] Add validation: URL
+- [ ] Add validation: isDate
+- [ ] Add validation: lengthIn (range)
 - [ ] Add Number validations: inRange
 - [x] Add separate module with password strength validation nbvcxz
 - [ ] Add separate module for utils for interoperability with Arrow
