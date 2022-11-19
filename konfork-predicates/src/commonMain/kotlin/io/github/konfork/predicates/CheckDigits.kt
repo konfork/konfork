@@ -23,6 +23,16 @@ fun isMod11(weightSequence: Sequence<Int>): (String) -> Boolean = {
 fun isMod11(startWeight: Int, endWeight: Int): (String) -> Boolean =
     isMod11(repeatingCounterSequence(startWeight, endWeight))
 
+private val isMod11Isbn10 = isMod11(9, 1)
+fun isIsbn10(s: String): Boolean =
+    s.replace(Regex("[ -]"), "")
+        .let { it.length == 10 && isMod11Isbn10(it) }
+
+private val isEan13 = isEan(13)
+fun isIsbn13(s: String): Boolean = isEan13(s.replace(Regex("[ -]"), ""))
+
+fun isIsbn(s: String): Boolean = isIsbn10(s) || isIsbn13(s)
+
 private fun isMod10(s: String, weightSequence: Sequence<Int>, map: (Int, Int) -> Int): Boolean =
     isAllDigits(s) && validateMod10Checksum(s, weightSequence, map)
 
