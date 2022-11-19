@@ -86,6 +86,18 @@ class StringsTest {
     }
 
     @Test
+    fun emailConstraint() {
+        val validator = Validator { email() }
+
+        assertThat(validator, "tester@example.com")
+            .isValid()
+
+        assertThat(validator, "testerexample.com")
+            .isInvalid()
+            .withHint("is not a valid email")
+    }
+
+    @Test
     fun uuidConstraint() {
         val validator = Validator { uuid() }
 

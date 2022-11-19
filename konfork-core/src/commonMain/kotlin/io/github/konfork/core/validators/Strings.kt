@@ -41,6 +41,12 @@ fun <C, E> Specification<C, String, E>.pattern(hint: HintBuilder<C, String, E>, 
 fun <C> Specification<C, String, String>.pattern(pattern: String) =
     pattern(pattern.toRegex())
 
+fun <C, E> Specification<C, String, E>.email(hint: HintBuilder<C, String, E>) =
+    addConstraint(hint) { isEmail(it) }
+
+fun <C> Specification<C, String, String>.email() =
+    email(stringHint("is not a valid email"))
+
 fun <C, E> Specification<C, String, E>.uuid(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { isUuid(it) }
 
