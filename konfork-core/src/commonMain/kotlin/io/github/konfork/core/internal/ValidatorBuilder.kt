@@ -127,3 +127,10 @@ internal class ConstraintValidatorBuilder<C, T, E>(
         return this
     }
 }
+
+internal class ConditionalValidatorBuilder<C, T, E>(
+    private val cond: C.(T) -> Boolean,
+    private val subBuilder: ValidatorBuilder<C, T, E>,
+): ValidatorBuilder<C, T, E> {
+    override fun build(): Validator<C, T, E> = ConditionalValidator(cond, subBuilder.build())
+}

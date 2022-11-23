@@ -42,16 +42,26 @@ internal class ValidatorsBuilder<C, T, E> : Specification<C, T, E>() {
     override fun <R : Any> ifPresent(name: String, mapFn: (T) -> R?, init: Specification<C, R, E>.() -> Unit) =
         add(PropertyValidatorBuilder(OptionalValidatorBuilder(eagerBuilder(init)), name, mapFn))
 
+    override fun <R> conditional(name: String, mapFn: (T) -> R, cond: C.(T) -> Boolean): SpecificationBuilder<C, R, E> =
+        ValidatorsBuilder<C, R, E>()
+            .also { add(ConditionalValidatorBuilder(cond, PropertyValidatorBuilder(eagerBuilder(it), name, mapFn))) }
+            .let { SpecificationBuilder(it) }
+
+    override fun conditional(cond: C.(T) -> Boolean): SpecificationBuilder<C, T, E> =
+        ValidatorsBuilder<C, T, E>()
+            .also { add(ConditionalValidatorBuilder(cond, eagerBuilder(it))) }
+            .let { SpecificationBuilder(it) }
+
     override fun <R : Any> required(name: String, hint: HintBuilder<C, R?, E>, mapFn: (T) -> R?, init: Specification<C, R, E>.() -> Unit): ConstraintBuilder<C, R?, E> =
         RequiredValidatorBuilder(hint, eagerBuilder(init))
             .also { add(PropertyValidatorBuilder(it, name, mapFn)) }
             .constraintBuilder
 
-    override fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: Specification<C, R, E>.() -> Unit): HintedSpecification<C, R, E> =
-        HintedSpecification(hint, init)
+    override fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: Specification<C, R, E>.() -> Unit): HintedSpecificationBuilder<C, R, E> =
+        HintedSpecificationBuilder(hint, init)
 
-    override fun <C, R> with(init: Specification<C, R, String>.() -> Unit): HintedSpecification<C, R, String> =
-        HintedSpecification(stringHint("is required"), init)
+    override fun <C, R> with(init: Specification<C, R, String>.() -> Unit): HintedSpecificationBuilder<C, R, String> =
+        HintedSpecificationBuilder(stringHint("is required"), init)
 
     override fun <R, S> apply(name: String, validator: Validator<S, R, E>, mapFn: (T) -> R, mapContext: (C) -> S) =
         add(PropertyValidatorBuilder(PrebuildValidatorBuilder(validator, mapContext), name, mapFn))
@@ -63,8 +73,9 @@ internal class ValidatorsBuilder<C, T, E> : Specification<C, T, E>() {
         ValidatorsBuilder<C, R, E>()
             .also { add(PropertyValidatorBuilder(EagerValidatorNodeBuilder(it), name, mapFn)) }
 
-    private fun <D, S> eagerBuilder(init: Specification<D, S, E>.() -> Unit) =
-        EagerValidatorNodeBuilder(ValidatorsBuilder<D, S, E>().also(init))
+    private fun <D, S> eagerBuilder(init: Specification<D, S, E>.() -> Unit) = eagerBuilder(ValidatorsBuilder<D, S, E>().also(init))
+
+    private fun <D, S> eagerBuilder(b: ValidatorsBuilder<D, S, E>) = EagerValidatorNodeBuilder(b)
 
     private fun <D, S> lazyBuilder(init: Specification<D, S, E>.() -> Unit) =
         LazyValidatorNodeBuilder(ValidatorsBuilder<D, S, E>().also(init))

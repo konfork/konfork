@@ -61,14 +61,19 @@ abstract class Specification<C, T, E> {
     infix fun <R : Any> KProperty1<T, R?>.ifPresent(init: Specification<C, R, E>.() -> Unit) = ifPresent(this.name, this, init)
     infix fun <R : Any> KFunction1<T, R?>.ifPresent(init: Specification<C, R, E>.() -> Unit) = ifPresent(this.name, this, init)
 
+    internal abstract fun <R> conditional(name: String, mapFn: (T) -> R, cond: C.(T) -> Boolean): SpecificationBuilder<C, R, E>
+    abstract fun conditional(cond: C.(T) -> Boolean): SpecificationBuilder<C, T, E>
+    infix fun <R : Any> KProperty1<T, R>.conditional(cond: C.(T) -> Boolean) = conditional(name, this, cond)
+    infix fun <R : Any> KFunction1<T, R>.conditional(cond: C.(T) -> Boolean) = conditional(name, this, cond)
+
     internal abstract fun <R : Any> required(name: String, hint: HintBuilder<C, R?, E>, mapFn: (T) -> R?, init: Specification<C, R, E>.() -> Unit): ConstraintBuilder<C, R?, E>
-    infix fun <R : Any> KProperty1<T, R?>.required(hintedBuilder: HintedSpecification<C, R, E>): ConstraintBuilder<C, R?, E> =
+    infix fun <R : Any> KProperty1<T, R?>.required(hintedBuilder: HintedSpecificationBuilder<C, R, E>): ConstraintBuilder<C, R?, E> =
         required(this.name, hintedBuilder.hint, this, hintedBuilder.init)
-    infix fun <R : Any> KFunction1<T, R?>.required(hintedBuilder: HintedSpecification<C, R, E>): ConstraintBuilder<C, R?, E> =
+    infix fun <R : Any> KFunction1<T, R?>.required(hintedBuilder: HintedSpecificationBuilder<C, R, E>): ConstraintBuilder<C, R?, E> =
         required(this.name, hintedBuilder.hint, this, hintedBuilder.init)
 
-    abstract fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: Specification<C, R, E>.() -> Unit): HintedSpecification<C, R, E>
-    abstract fun <C, R> with(init: Specification<C, R, String>.() -> Unit): HintedSpecification<C, R, String>
+    abstract fun <C, R, E> with(hint: HintBuilder<C, R?, E>, init: Specification<C, R, E>.() -> Unit): HintedSpecificationBuilder<C, R, E>
+    abstract fun <C, R> with(init: Specification<C, R, String>.() -> Unit): HintedSpecificationBuilder<C, R, String>
 
     internal abstract fun <R, S> apply(name: String, validator: Validator<S, R, E>, mapFn: (T) -> R, mapContext: (C) -> S)
     infix fun <R> KProperty1<T, R>.apply(validator: Validator<C, R, E>) = apply(name, validator, this, ::identity)

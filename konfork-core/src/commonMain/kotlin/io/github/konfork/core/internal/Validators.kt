@@ -53,6 +53,18 @@ internal open class OnEachValidator<C, T, E>(
         }
 }
 
+internal open class ConditionalValidator<C, T, E>(
+    private val cond: C.(T) -> Boolean,
+    private val validator: Validator<C, T, E>,
+) : Validator<C, T, E> {
+    override fun validate(context: C, value: T): ValidationResult<E, T> =
+        if (context.cond(value)) {
+            validator(context, value)
+        } else {
+            Valid(value)
+        }
+}
+
 internal data class ConstraintValidator<C, T, E>(
     private val hint: HintBuilder<C, T, E>,
     private val arguments: HintArguments,

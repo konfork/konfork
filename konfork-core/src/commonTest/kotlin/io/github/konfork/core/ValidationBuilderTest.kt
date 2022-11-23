@@ -2,6 +2,7 @@ package io.github.konfork.core
 
 import io.github.konfork.core.ValidationBuilderTest.Errors.ONE
 import io.github.konfork.core.ValidationBuilderTest.Errors.TWO
+import io.github.konfork.core.validators.email
 import io.github.konfork.core.validators.minItems
 import io.github.konfork.core.validators.minLength
 import io.github.konfork.core.validators.pattern
@@ -384,6 +385,24 @@ class ValidationBuilderTest {
     }
 
     @Test
+    fun validatingConditional() {
+        val validator = Validator<Register> {
+            Register::email conditional { it.password == "1" } with {
+                email()
+            }
+        }
+
+        assertThat(validator, Register(password = "0"))
+            .isValid()
+        assertThat(validator, Register(password = "1", email = "a@b.c"))
+            .isValid()
+
+        assertThat(validator, Register(password = "1"))
+            .isInvalid()
+            .withErrorCount(1, Register::email)
+    }
+
+    @Test
     fun validateArrays() {
 
         data class Data(val registrations: Array<Register> = emptyArray())
@@ -599,14 +618,14 @@ class ValidationBuilderTest {
     private data class MapData(val registrations: Map<String, Register> = emptyMap())
 
     enum class Errors { ONE, TWO, }
-    private data class Register(
+    data class Register(
         val password: String = "",
         val email: String = "",
         val referredBy: String? = null,
         val home: Address = Address(),
         val secondaryHome: Address? = null,
     )
-    private data class Address(val address: String = "", val country: String = "DE")
+    data class Address(val address: String = "", val country: String = "DE")
     private data class RegisterContext(val subContext: AddressContext = AddressContext())
     private data class AddressContext(val validCountries: Set<String> = setOf("DE", "NL", "BE"))
 }
