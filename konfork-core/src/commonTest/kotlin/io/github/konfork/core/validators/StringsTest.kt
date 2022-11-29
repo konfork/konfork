@@ -6,6 +6,30 @@ import kotlin.test.Test
 
 class StringsTest {
     @Test
+    fun allConstraint() {
+        val validator = Validator { all(Char::isDigit) }
+
+        assertThat(validator, "0123456789")
+            .isValid()
+
+        assertThat(validator, "0123X")
+            .isInvalid()
+            .withHint("not all characters comply")
+    }
+
+    @Test
+    fun anyConstraint() {
+        val validator = Validator { any(Char::isDigit) }
+
+        assertThat(validator, "abcd0")
+            .isValid()
+
+        assertThat(validator, "abcde")
+            .isInvalid()
+            .withHint("none of the characters comply")
+    }
+
+    @Test
     fun allDigitsConstraint() {
         val validator = Validator { allDigits() }
 
@@ -15,6 +39,42 @@ class StringsTest {
         assertThat(validator, "123456789X")
             .isInvalid()
             .withHint("is not all digits")
+    }
+
+    @Test
+    fun containsConstraint() {
+        val validator = Validator { contains('a') }
+
+        assertThat(validator, "abcde")
+            .isValid()
+
+        assertThat(validator, "bcdef")
+            .isInvalid()
+            .withHint("does not contain character 'a'")
+    }
+
+    @Test
+    fun containsIgnoringCaseConstraint() {
+        val validator = Validator { contains('a', true) }
+
+        assertThat(validator, "Abcde")
+            .isValid()
+
+        assertThat(validator, "bcdef")
+            .isInvalid()
+            .withHint("does not contain character 'a' when ignoring case")
+    }
+
+    @Test
+    fun contentEqualsConstraint() {
+        val validator = Validator { contentEquals("Hello, World!") }
+
+        assertThat(validator, "Hello, World!")
+            .isValid()
+
+        assertThat(validator, "Goodbye, World!")
+            .isInvalid()
+            .withHint("content not equal")
     }
 
     @Test
@@ -39,6 +99,78 @@ class StringsTest {
         assertThat(validator, "testerexample.com")
             .isInvalid()
             .withHint("is not a valid email")
+    }
+
+    @Test
+    fun endsWithConstraint() {
+        val validator = Validator { endsWith("World!") }
+
+        assertThat(validator, "Hello, World!")
+            .isValid()
+
+        assertThat(validator, "Hello, Moon!")
+            .isInvalid()
+            .withHint("does not end with \"World!\"")
+    }
+
+    @Test
+    fun endsWithIgnoringCaseConstraint() {
+        val validator = Validator { endsWith("world!", true) }
+
+        assertThat(validator, "Hello, World!")
+            .isValid()
+
+        assertThat(validator, "Hello, Moon!")
+            .isInvalid()
+            .withHint("does not end with \"world!\" when ignoring case")
+    }
+
+    @Test
+    fun isBlankConstraint() {
+        val validator = Validator { isBlank() }
+
+        assertThat(validator, "    ")
+            .isValid()
+
+        assertThat(validator, "a")
+            .isInvalid()
+            .withHint("is not blank")
+    }
+
+    @Test
+    fun isEmptyConstraint() {
+        val validator = Validator { isEmpty() }
+
+        assertThat(validator, "")
+            .isValid()
+
+        assertThat(validator, " ")
+            .isInvalid()
+            .withHint("is not empty")
+    }
+
+    @Test
+    fun isNotBlankConstraint() {
+        val validator = Validator { isNotBlank() }
+
+        assertThat(validator, "a")
+            .isValid()
+
+        assertThat(validator, "  ")
+            .isInvalid()
+            .withHint("is blank")
+    }
+
+    @Test
+    fun isNotEmptyConstraint() {
+        val validator = Validator { isNotEmpty() }
+
+        assertThat(validator, " ")
+            .isValid()
+
+        assertThat(validator, "")
+            .isInvalid()
+            .withHint("is empty")
     }
 
     @Test
@@ -173,6 +305,18 @@ class StringsTest {
     }
 
     @Test
+    fun noneConstraint() {
+        val validator = Validator { none(Char::isDigit) }
+
+        assertThat(validator, "abcd")
+            .isValid()
+
+        assertThat(validator, "abc0")
+            .isInvalid()
+            .withHint("some character does comply")
+    }
+
+    @Test
     fun patternConstraint() {
         val validator = Validator { pattern(".+@.+") }
 
@@ -206,6 +350,29 @@ class StringsTest {
             .withHint("must match the expected pattern")
     }
 
+    @Test
+    fun startsWithConstraint() {
+        val validator = Validator { startsWith("Hello") }
+
+        assertThat(validator, "Hello, World!")
+            .isValid()
+
+        assertThat(validator, "Goodbye, World!")
+            .isInvalid()
+            .withHint("does not start with \"Hello\"")
+    }
+
+    @Test
+    fun startsWithIgnoringCaseConstraint() {
+        val validator = Validator { startsWith("hello", true) }
+
+        assertThat(validator, "Hello, World!")
+            .isValid()
+
+        assertThat(validator, "Goodbye, World!")
+            .isInvalid()
+            .withHint("does not start with \"hello\" when ignoring case")
+    }
 
     @Test
     fun uuidConstraint() {

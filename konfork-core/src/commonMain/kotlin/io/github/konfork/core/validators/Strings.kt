@@ -6,11 +6,45 @@ import io.github.konfork.core.Specification
 import io.github.konfork.core.stringHint
 import io.github.konfork.predicates.*
 
+fun <C, E> Specification<C, String, E>.all(hint: HintBuilder<C, String, E>, predicate: (Char) -> Boolean) =
+    addConstraint(hint) { it.all(predicate) }
+
+fun <C> Specification<C, String, String>.all(predicate: (Char) -> Boolean) =
+    all(stringHint("not all characters comply"), predicate)
+
+fun <C, E> Specification<C, String, E>.any(hint: HintBuilder<C, String, E>, predicate: (Char) -> Boolean) =
+    addConstraint(hint) { it.any(predicate) }
+
+fun <C> Specification<C, String, String>.any(predicate: (Char) -> Boolean) =
+    any(stringHint("none of the characters comply"), predicate)
+
 fun <C, E> Specification<C, String, E>.allDigits(hint: HintBuilder<C, String, E>) =
-    addConstraint(hint) { isAllDigits(it) }
+    all(hint, Char::isDigit)
 
 fun <C> Specification<C, String, String>.allDigits() =
-    allDigits(stringHint("is not all digits"))
+    all(stringHint("is not all digits"), Char::isDigit)
+
+fun <C, E> Specification<C, String, E>.contains(
+    hint: HintBuilder<C, String, E>,
+    char: Char,
+    ignoreCase: Boolean = false
+) =
+    addConstraint(hint) { it.contains(char, ignoreCase) }
+
+fun <C> Specification<C, String, String>.contains(char: Char, ignoreCase: Boolean = false) {
+    val message = if (ignoreCase) {
+        " when ignoring case"
+    } else {
+        ""
+    }
+    contains(stringHint("does not contain character '$char'$message"), char, ignoreCase)
+}
+
+fun <C, E> Specification<C, String, E>.contentEquals(hint: HintBuilder<C, String, E>, other: String) =
+    addConstraint(hint) { it.contentEquals(other) }
+
+fun <C> Specification<C, String, String>.contentEquals(other: String) =
+    contentEquals(stringHint("content not equal"), other)
 
 fun <C, E> Specification<C, String, E>.ean(hint: HintBuilder<C, String, E>, length: Int) {
     val eanFn = isEan(length)
@@ -26,6 +60,47 @@ fun <C, E> Specification<C, String, E>.email(hint: HintBuilder<C, String, E>) =
 fun <C> Specification<C, String, String>.email() =
     email(stringHint("is not a valid email"))
 
+fun <C, E> Specification<C, String, E>.endsWith(
+    hint: HintBuilder<C, String, E>,
+    suffix: String,
+    ignoreCase: Boolean = false
+) {
+    addConstraint(hint) { it.endsWith(suffix, ignoreCase) }
+}
+
+fun <C> Specification<C, String, String>.endsWith(suffix: String, ignoreCase: Boolean = false) {
+    val message = if (ignoreCase) {
+        " when ignoring case"
+    } else {
+        ""
+    }
+    endsWith(stringHint("does not end with \"$suffix\"$message"), suffix, ignoreCase)
+}
+
+fun <C, E> Specification<C, String, E>.isBlank(hint: HintBuilder<C, String, E>) =
+    addConstraint(hint) { it.isBlank() }
+
+fun <C> Specification<C, String, String>.isBlank() =
+    isBlank(stringHint("is not blank"))
+
+fun <C, E> Specification<C, String, E>.isEmpty(hint: HintBuilder<C, String, E>) =
+    addConstraint(hint) { it.isEmpty() }
+
+fun <C> Specification<C, String, String>.isEmpty() =
+    isEmpty(stringHint("is not empty"))
+
+
+fun <C, E> Specification<C, String, E>.isNotBlank(hint: HintBuilder<C, String, E>) =
+    addConstraint(hint) { it.isNotBlank() }
+
+fun <C> Specification<C, String, String>.isNotBlank() =
+    isNotBlank(stringHint("is blank"))
+
+fun <C, E> Specification<C, String, E>.isNotEmpty(hint: HintBuilder<C, String, E>) =
+    addConstraint(hint) { it.isNotEmpty() }
+
+fun <C> Specification<C, String, String>.isNotEmpty() =
+    isNotEmpty(stringHint("is empty"))
 
 fun <C, E> Specification<C, String, E>.isbn(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { isIsbn(it) }
@@ -107,6 +182,11 @@ fun <C, E> Specification<C, String, E>.nilUuid(hint: HintBuilder<C, String, E>) 
 fun <C> Specification<C, String, String>.nilUuid() =
     nilUuid(stringHint("is not the nil uuid"))
 
+fun <C, E> Specification<C, String, E>.none(hint: HintBuilder<C, String, E>, predicate: (Char) -> Boolean) =
+    addConstraint(hint) { it.none(predicate) }
+
+fun <C> Specification<C, String, String>.none(predicate: (Char) -> Boolean) =
+    none(stringHint("some character does comply"), predicate)
 
 fun <C, E> Specification<C, String, E>.pattern(hint: HintBuilder<C, String, E>, pattern: Regex) =
     addConstraint(hint, pattern) { it.matches(pattern) }
@@ -119,6 +199,23 @@ fun <C, E> Specification<C, String, E>.pattern(hint: HintBuilder<C, String, E>, 
 
 fun <C> Specification<C, String, String>.pattern(pattern: String) =
     pattern(pattern.toRegex())
+
+fun <C, E> Specification<C, String, E>.startsWith(
+    hint: HintBuilder<C, String, E>,
+    prefix: String,
+    ignoreCase: Boolean = false
+) {
+    addConstraint(hint) { it.startsWith(prefix, ignoreCase) }
+}
+
+fun <C> Specification<C, String, String>.startsWith(prefix: String, ignoreCase: Boolean = false) {
+    val message = if (ignoreCase) {
+        " when ignoring case"
+    } else {
+        ""
+    }
+    startsWith(stringHint("does not start with \"$prefix\"$message"), prefix, ignoreCase)
+}
 
 fun <C, E> Specification<C, String, E>.uuid(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { isUuid(it) }
