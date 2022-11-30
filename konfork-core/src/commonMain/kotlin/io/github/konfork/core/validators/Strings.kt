@@ -1,28 +1,25 @@
 package io.github.konfork.core.validators
 
-import io.github.konfork.core.ConstraintBuilder
-import io.github.konfork.core.HintBuilder
-import io.github.konfork.core.Specification
-import io.github.konfork.core.stringHint
+import io.github.konfork.core.*
 import io.github.konfork.predicates.*
 
 fun <C, E> Specification<C, String, E>.all(hint: HintBuilder<C, String, E>, predicate: (Char) -> Boolean) =
     addConstraint(hint) { it.all(predicate) }
 
 fun <C> Specification<C, String, String>.all(predicate: (Char) -> Boolean) =
-    all(stringHint("not all characters comply"), predicate)
+    all(staticHint("not all characters comply"), predicate)
 
 fun <C, E> Specification<C, String, E>.allDigits(hint: HintBuilder<C, String, E>) =
     all(hint, Char::isDigit)
 
 fun <C> Specification<C, String, String>.allDigits() =
-    allDigits(stringHint("is not all digits"))
+    allDigits(staticHint("is not all digits"))
 
 fun <C, E> Specification<C, String, E>.any(hint: HintBuilder<C, String, E>, predicate: (Char) -> Boolean) =
     addConstraint(hint) { it.any(predicate) }
 
 fun <C> Specification<C, String, String>.any(predicate: (Char) -> Boolean) =
-    any(stringHint("none of the characters comply"), predicate)
+    any(staticHint("none of the characters comply"), predicate)
 
 
 fun <C, E> Specification<C, String, E>.contains(
@@ -38,14 +35,14 @@ fun <C> Specification<C, String, String>.contains(char: Char, ignoreCase: Boolea
     } else {
         ""
     }
-    contains(stringHint("does not contain character '$char'$message"), char, ignoreCase)
+    contains(staticHint("does not contain character '$char'$message"), char, ignoreCase)
 }
 
 fun <C, E> Specification<C, String, E>.contentEquals(hint: HintBuilder<C, String, E>, other: String) =
     addConstraint(hint) { it.contentEquals(other) }
 
 fun <C> Specification<C, String, String>.contentEquals(other: String) =
-    contentEquals(stringHint("content not equal"), other)
+    contentEquals(staticHint("content not equal"), other)
 
 fun <C, E> Specification<C, String, E>.ean(hint: HintBuilder<C, String, E>, length: Int) {
     val eanFn = isEan(length)
@@ -59,7 +56,7 @@ fun <C, E> Specification<C, String, E>.email(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { isEmail(it) }
 
 fun <C> Specification<C, String, String>.email() =
-    email(stringHint("is not a valid email"))
+    email(staticHint("is not a valid email"))
 
 fun <C, E> Specification<C, String, E>.endsWith(
     hint: HintBuilder<C, String, E>,
@@ -75,51 +72,51 @@ fun <C> Specification<C, String, String>.endsWith(suffix: String, ignoreCase: Bo
     } else {
         ""
     }
-    endsWith(stringHint("does not end with \"$suffix\"$message"), suffix, ignoreCase)
+    endsWith(staticHint("does not end with \"$suffix\"$message"), suffix, ignoreCase)
 }
 
 fun <C, E> Specification<C, String, E>.isBlank(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { it.isBlank() }
 
 fun <C> Specification<C, String, String>.isBlank() =
-    isBlank(stringHint("is not blank"))
+    isBlank(staticHint("is not blank"))
 
 fun <C, E> Specification<C, String, E>.isEmpty(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { it.isEmpty() }
 
 fun <C> Specification<C, String, String>.isEmpty() =
-    isEmpty(stringHint("is not empty"))
+    isEmpty(staticHint("is not empty"))
 
 
 fun <C, E> Specification<C, String, E>.isNotBlank(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { it.isNotBlank() }
 
 fun <C> Specification<C, String, String>.isNotBlank() =
-    isNotBlank(stringHint("is blank"))
+    isNotBlank(staticHint("is blank"))
 
 fun <C, E> Specification<C, String, E>.isNotEmpty(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { it.isNotEmpty() }
 
 fun <C> Specification<C, String, String>.isNotEmpty() =
-    isNotEmpty(stringHint("is empty"))
+    isNotEmpty(staticHint("is empty"))
 
 fun <C, E> Specification<C, String, E>.isbn(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { isIsbn(it) }
 
 fun <C> Specification<C, String, String>.isbn() =
-    isbn(stringHint("is not a valid isbn"))
+    isbn(staticHint("is not a valid isbn"))
 
 fun <C, E> Specification<C, String, E>.isbn10(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { isIsbn10(it) }
 
 fun <C> Specification<C, String, String>.isbn10() =
-    isbn10(stringHint("is not a valid isbn10"))
+    isbn10(staticHint("is not a valid isbn10"))
 
 fun <C, E> Specification<C, String, E>.isbn13(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { isIsbn13(it) }
 
 fun <C> Specification<C, String, String>.isbn13() =
-    isbn13(stringHint("is not a valid isbn13"))
+    isbn13(staticHint("is not a valid isbn13"))
 
 fun <C, E> Specification<C, String, E>.lengthIn(
     hint: HintBuilder<C, String, E>,
@@ -136,7 +133,7 @@ fun <C, E> Specification<C, String, E>.luhn(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { isLuhn(it) }
 
 fun <C> Specification<C, String, String>.luhn() =
-    luhn(stringHint("does not have a valid luhn check digit"))
+    luhn(staticHint("does not have a valid luhn check digit"))
 
 fun <C, E> Specification<C, String, E>.maxLength(
     hint: HintBuilder<C, String, E>,
@@ -166,7 +163,7 @@ fun <C, E> Specification<C, String, E>.mod10(hint: HintBuilder<C, String, E>, ev
 }
 
 fun <C> Specification<C, String, String>.mod10(evenWeight: Int, oddWeight: Int) =
-    mod10(stringHint("does not have a valid mod10 check digit"), evenWeight, oddWeight)
+    mod10(staticHint("does not have a valid mod10 check digit"), evenWeight, oddWeight)
 
 
 fun <C, E> Specification<C, String, E>.mod11(hint: HintBuilder<C, String, E>, startWeight: Int, endWeight: Int) {
@@ -175,25 +172,25 @@ fun <C, E> Specification<C, String, E>.mod11(hint: HintBuilder<C, String, E>, st
 }
 
 fun <C> Specification<C, String, String>.mod11(startWeight: Int, endWeight: Int) =
-    mod11(stringHint("does not have a valid mod11 check digit"), startWeight, endWeight)
+    mod11(staticHint("does not have a valid mod11 check digit"), startWeight, endWeight)
 
 fun <C, E> Specification<C, String, E>.nilUuid(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { isNilUuid(it) }
 
 fun <C> Specification<C, String, String>.nilUuid() =
-    nilUuid(stringHint("is not the nil uuid"))
+    nilUuid(staticHint("is not the nil uuid"))
 
 fun <C, E> Specification<C, String, E>.none(hint: HintBuilder<C, String, E>, predicate: (Char) -> Boolean) =
     addConstraint(hint) { it.none(predicate) }
 
 fun <C> Specification<C, String, String>.none(predicate: (Char) -> Boolean) =
-    none(stringHint("some character does comply"), predicate)
+    none(staticHint("some character does comply"), predicate)
 
 fun <C, E> Specification<C, String, E>.pattern(hint: HintBuilder<C, String, E>, pattern: Regex) =
     addConstraint(hint, pattern) { it.matches(pattern) }
 
 fun <C> Specification<C, String, String>.pattern(pattern: Regex) =
-    pattern(stringHint("must match the expected pattern"), pattern)
+    pattern(staticHint("must match the expected pattern"), pattern)
 
 fun <C, E> Specification<C, String, E>.pattern(hint: HintBuilder<C, String, E>, pattern: String) =
     pattern(hint, pattern.toRegex())
@@ -215,14 +212,14 @@ fun <C> Specification<C, String, String>.startsWith(prefix: String, ignoreCase: 
     } else {
         ""
     }
-    startsWith(stringHint("does not start with \"$prefix\"$message"), prefix, ignoreCase)
+    startsWith(staticHint("does not start with \"$prefix\"$message"), prefix, ignoreCase)
 }
 
 fun <C, E> Specification<C, String, E>.uuid(hint: HintBuilder<C, String, E>) =
     addConstraint(hint) { isUuid(it) }
 
 fun <C> Specification<C, String, String>.uuid() =
-    uuid(stringHint("is not a valid uuid"))
+    uuid(staticHint("is not a valid uuid"))
 
 fun <C, E> Specification<C, String, E>.uuid(hint: HintBuilder<C, String, E>, version: Int) =
     addConstraint(hint, version) { isUuidVersion(1)(it) }
