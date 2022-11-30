@@ -27,7 +27,7 @@ fun <C, E> Specification<C, String, E>.contains(
     char: Char,
     ignoreCase: Boolean = false
 ): ConstraintBuilder<C, String, E> =
-    addConstraint(hint) { it.contains(char, ignoreCase) }
+    addConstraint(hint, char, ignoreCase) { it.contains(char, ignoreCase) }
 
 fun <C> Specification<C, String, String>.contains(char: Char, ignoreCase: Boolean = false): ConstraintBuilder<C, String, String> {
     val message = if (ignoreCase) {
@@ -35,7 +35,7 @@ fun <C> Specification<C, String, String>.contains(char: Char, ignoreCase: Boolea
     } else {
         ""
     }
-    return contains(staticHint("does not contain character '$char'$message"), char, ignoreCase)
+    return contains(stringHint("does not contain character '{0}'$message"), char, ignoreCase)
 }
 
 fun <C, E> Specification<C, String, E>.contentEquals(hint: HintBuilder<C, String, E>, other: String): ConstraintBuilder<C, String, E> =
@@ -63,7 +63,7 @@ fun <C, E> Specification<C, String, E>.endsWith(
     suffix: String,
     ignoreCase: Boolean = false
 ): ConstraintBuilder<C, String, E> =
-    addConstraint(hint) { it.endsWith(suffix, ignoreCase) }
+    addConstraint(hint, suffix, ignoreCase) { it.endsWith(suffix, ignoreCase) }
 
 fun <C> Specification<C, String, String>.endsWith(suffix: String, ignoreCase: Boolean = false): ConstraintBuilder<C, String, String> {
     val message = if (ignoreCase) {
@@ -71,7 +71,7 @@ fun <C> Specification<C, String, String>.endsWith(suffix: String, ignoreCase: Bo
     } else {
         ""
     }
-    return endsWith(staticHint("does not end with \"$suffix\"$message"), suffix, ignoreCase)
+    return endsWith(stringHint("does not end with \"{0}\"$message"), suffix, ignoreCase)
 }
 
 fun <C, E> Specification<C, String, E>.isBlank(hint: HintBuilder<C, String, E>): ConstraintBuilder<C, String, E> =
@@ -202,7 +202,7 @@ fun <C, E> Specification<C, String, E>.startsWith(
     prefix: String,
     ignoreCase: Boolean = false
 ): ConstraintBuilder<C, String, E> =
-    addConstraint(hint) { it.startsWith(prefix, ignoreCase) }
+    addConstraint(hint, prefix, ignoreCase) { it.startsWith(prefix, ignoreCase) }
 
 fun <C> Specification<C, String, String>.startsWith(prefix: String, ignoreCase: Boolean = false): ConstraintBuilder<C, String, String> {
     val message = if (ignoreCase) {
@@ -210,7 +210,7 @@ fun <C> Specification<C, String, String>.startsWith(prefix: String, ignoreCase: 
     } else {
         ""
     }
-    return startsWith(staticHint("does not start with \"$prefix\"$message"), prefix, ignoreCase)
+    return startsWith(stringHint("does not start with \"{0}\"$message"), prefix, ignoreCase)
 }
 
 fun <C, E> Specification<C, String, E>.uuid(hint: HintBuilder<C, String, E>): ConstraintBuilder<C, String, E> =
