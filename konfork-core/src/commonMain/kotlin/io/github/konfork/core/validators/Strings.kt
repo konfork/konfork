@@ -12,17 +12,18 @@ fun <C, E> Specification<C, String, E>.all(hint: HintBuilder<C, String, E>, pred
 fun <C> Specification<C, String, String>.all(predicate: (Char) -> Boolean) =
     all(stringHint("not all characters comply"), predicate)
 
+fun <C, E> Specification<C, String, E>.allDigits(hint: HintBuilder<C, String, E>) =
+    all(hint, Char::isDigit)
+
+fun <C> Specification<C, String, String>.allDigits() =
+    allDigits(stringHint("is not all digits"))
+
 fun <C, E> Specification<C, String, E>.any(hint: HintBuilder<C, String, E>, predicate: (Char) -> Boolean) =
     addConstraint(hint) { it.any(predicate) }
 
 fun <C> Specification<C, String, String>.any(predicate: (Char) -> Boolean) =
     any(stringHint("none of the characters comply"), predicate)
 
-fun <C, E> Specification<C, String, E>.allDigits(hint: HintBuilder<C, String, E>) =
-    all(hint, Char::isDigit)
-
-fun <C> Specification<C, String, String>.allDigits() =
-    all(stringHint("is not all digits"), Char::isDigit)
 
 fun <C, E> Specification<C, String, E>.contains(
     hint: HintBuilder<C, String, E>,
