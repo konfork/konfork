@@ -1,6 +1,5 @@
 package io.github.konfork.predicates
 
-import io.github.konfork.predicates.cases.AllDigitCases
 import io.github.konfork.predicates.cases.EmailTestCases
 import io.github.konfork.predicates.cases.UuidTestCases
 import io.github.konfork.predicates.util.assert
@@ -24,11 +23,5 @@ class StringsTest {
         assert(cases.validV3, cases.invalidV3, isUuidVersion(3))
         assert(cases.validV4, cases.invalidV4, isUuidVersion(4))
         assert(cases.validV5, cases.invalidV5, isUuidVersion(5))
-    }
-
-    @Test
-    fun isAllDigits() {
-        val cases = AllDigitCases()
-        assert(cases.valid, cases.invalid, ::isAllDigits)
     }
 }
