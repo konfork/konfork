@@ -1,6 +1,6 @@
 package io.github.konfork.predicates
 
-fun isMod10(evenWeight: Int, oddWeight: Int) : (String) -> Boolean {
+fun isMod10(evenWeight: Int, oddWeight: Int): (String) -> Boolean {
     val weightSequence = alternatingSequence(evenWeight, oddWeight)
     return { isMod10(it, weightSequence, Int::times) }
 }
@@ -14,6 +14,8 @@ fun isLuhn(s: String): Boolean =
     isAllDigits(s) && validateMod10Checksum(s, alternatingSequence(1, 2)) { l, r ->
         (l * r).let { (it / 10) + (it % 10) }
     }
+
+private fun isAllDigits(s: String): Boolean = s.all(Char::isDigit)
 
 private val MOD11_DIGITS = Regex("[0-9]+[xX]?")
 fun isMod11(weightSequence: Sequence<Int>): (String) -> Boolean = {

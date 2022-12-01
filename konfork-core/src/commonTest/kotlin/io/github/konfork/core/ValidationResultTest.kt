@@ -1,8 +1,8 @@
 package io.github.konfork.core
 
+import io.github.konfork.core.validators.matches
 import io.github.konfork.core.validators.maxLength
 import io.github.konfork.core.validators.minLength
-import io.github.konfork.core.validators.pattern
 import io.github.konfork.test.assertThat
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,7 +21,7 @@ class ValidationResultTest {
                     City::postalCode {
                         minLength(4)
                         maxLength(5)
-                        pattern("\\d{4,5}") hint stringHint("must be a four or five digit number")
+                        matches("\\d{4,5}") hint stringHint("must be a four or five digit number")
                     }
                 }
             }

@@ -5,84 +5,100 @@ import io.github.konfork.test.assertThat
 import kotlin.test.Test
 
 class StringsTest {
-
     @Test
-    fun minLengthConstraint() {
-        val validator = Validator { minLength(10) }
+    fun allConstraint() {
+        val validator = Validator { all(Char::isDigit) }
 
-        assertThat(validator, "HelloWorld")
-            .isValid()
-        assertThat(validator, "Hello World")
+        assertThat(validator, "0123456789")
             .isValid()
 
-        assertThat(validator, "Hello")
+        assertThat(validator, "0123X")
             .isInvalid()
-            .withHint("must have at least 10 characters")
-        assertThat(validator, "")
-            .isInvalid()
-            .withHint("must have at least 10 characters")
+            .withHint("not all characters comply")
     }
 
     @Test
-    fun maxLengthConstraint() {
-        val validator = Validator { maxLength(10) }
+    fun anyConstraint() {
+        val validator = Validator { any(Char::isDigit) }
 
-        assertThat(validator, "HelloWorld")
-            .isValid()
-        assertThat(validator, "Hello")
-            .isValid()
-        assertThat(validator, "")
+        assertThat(validator, "abcd0")
             .isValid()
 
-        assertThat(validator, "Hello World")
+        assertThat(validator, "abcde")
             .isInvalid()
-            .withHint("must have at most 10 characters")
+            .withHint("none of the characters comply")
     }
 
     @Test
-    fun lengthInConstraint() {
-        val validator = Validator { lengthIn(4..10) }
+    fun allDigitsConstraint() {
+        val validator = Validator { allDigits() }
 
-        assertThat(validator, "HelloWorld")
+        assertThat(validator, "1234567890")
             .isValid()
 
-        assertThat(validator, "Hello World")
+        assertThat(validator, "123456789X")
             .isInvalid()
-            .withHint("must have at least 4 and at most 10 characters")
+            .withHint("is not all digits")
     }
 
     @Test
-    fun patternConstraint() {
-        val validator = Validator { pattern(".+@.+") }
+    fun containsConstraint() {
+        val validator = Validator { contains('a') }
 
-        assertThat(validator, "a@a")
-            .isValid()
-        assertThat(validator, "a@a@a@a")
-            .isValid()
-        assertThat(validator, " a@a ")
+        assertThat(validator, "abcde")
             .isValid()
 
-        assertThat(validator, "a")
+        assertThat(validator, "bcdef")
             .isInvalid()
-            .withHint("must match the expected pattern")
+            .withHint("does not contain character 'a'")
     }
 
     @Test
-    fun precompiledPatternConstraint() {
-        val validator = Validator { pattern("\\w+@\\w+\\.\\w+".toRegex()) }
+    fun containsIgnoringCaseConstraint() {
+        val validator = Validator { contains('a', true) }
 
-        assertThat(validator, "tester@example.com")
+        assertThat(validator, "Abcde")
             .isValid()
 
-        assertThat(validator, "tester@example")
+        assertThat(validator, "bcdef")
             .isInvalid()
-            .withHint("must match the expected pattern")
-        assertThat(validator, " tester@example.com")
+            .withHint("does not contain character 'a' when ignoring case")
+    }
+
+    @Test
+    fun containsRegexConstraint() {
+        val validator = Validator { contains("@.+\\.com".toRegex()) }
+
+        assertThat(validator, "info@acme.com")
+            .isValid()
+
+        assertThat(validator, "info@acme.org")
             .isInvalid()
-            .withHint("must match the expected pattern")
-        assertThat(validator, "tester@example.com ")
+            .withHint("does not contain pattern")
+    }
+
+    @Test
+    fun contentEqualsConstraint() {
+        val validator = Validator { contentEquals("Hello, World!") }
+
+        assertThat(validator, "Hello, World!")
+            .isValid()
+
+        assertThat(validator, "Goodbye, World!")
             .isInvalid()
-            .withHint("must match the expected pattern")
+            .withHint("content not equal")
+    }
+
+    @Test
+    fun eanConstraint() {
+        val validator = Validator { ean(12) }
+
+        assertThat(validator, "098412808666")
+            .isValid()
+
+        assertThat(validator, "74709960")
+            .isInvalid()
+            .withHint("is not a valid ean12")
     }
 
     @Test
@@ -98,51 +114,75 @@ class StringsTest {
     }
 
     @Test
-    fun uuidConstraint() {
-        val validator = Validator { uuid() }
+    fun endsWithConstraint() {
+        val validator = Validator { endsWith("World!") }
 
-        assertThat(validator, "c63f510c-6214-11ed-9b6a-0242ac120002")
+        assertThat(validator, "Hello, World!")
             .isValid()
 
-        assertThat(validator, "tester@example.com")
+        assertThat(validator, "Hello, Moon!")
             .isInvalid()
-            .withHint("is not a valid uuid")
+            .withHint("does not end with \"World!\"")
     }
 
     @Test
-    fun uuidWithVersionConstraint() {
-        val validator = Validator { uuid(1) }
+    fun endsWithIgnoringCaseConstraint() {
+        val validator = Validator { endsWith("world!", true) }
 
-        assertThat(validator, "c63f510c-6214-11ed-9b6a-0242ac120002")
+        assertThat(validator, "Hello, World!")
             .isValid()
 
-        assertThat(validator, "c63f510c-6214-21ed-9b6a-0242ac120002")
+        assertThat(validator, "Hello, Moon!")
             .isInvalid()
-            .withHint("is not a valid uuid version 1")
+            .withHint("does not end with \"world!\" when ignoring case")
     }
 
     @Test
-    fun nilUuidConstraint() {
-        val validator = Validator { nilUuid() }
+    fun isBlankConstraint() {
+        val validator = Validator { isBlank() }
 
-        assertThat(validator, "00000000-0000-0000-0000-000000000000")
+        assertThat(validator, "    ")
             .isValid()
 
-        assertThat(validator, "c63f510c-6214-21ed-9b6a-0242ac120002")
+        assertThat(validator, "a")
             .isInvalid()
-            .withHint("is not the nil uuid")
+            .withHint("is not blank")
     }
 
     @Test
-    fun allDigitsConstraint() {
-        val validator = Validator { allDigits() }
+    fun isEmptyConstraint() {
+        val validator = Validator { isEmpty() }
 
-        assertThat(validator, "1234567890")
+        assertThat(validator, "")
             .isValid()
 
-        assertThat(validator, "123456789X")
+        assertThat(validator, " ")
             .isInvalid()
-            .withHint("is not all digits")
+            .withHint("is not empty")
+    }
+
+    @Test
+    fun isNotBlankConstraint() {
+        val validator = Validator { isNotBlank() }
+
+        assertThat(validator, "a")
+            .isValid()
+
+        assertThat(validator, "  ")
+            .isInvalid()
+            .withHint("is blank")
+    }
+
+    @Test
+    fun isNotEmptyConstraint() {
+        val validator = Validator { isNotEmpty() }
+
+        assertThat(validator, " ")
+            .isValid()
+
+        assertThat(validator, "")
+            .isInvalid()
+            .withHint("is empty")
     }
 
     @Test
@@ -184,27 +224,15 @@ class StringsTest {
     }
 
     @Test
-    fun mod10Constraint() {
-        val validator = Validator { mod10(1, 3) }
+    fun lengthInConstraint() {
+        val validator = Validator { lengthIn(4..10) }
 
-        assertThat(validator, "098412808666")
+        assertThat(validator, "HelloWorld")
             .isValid()
 
-        assertThat(validator, "3-598-21507-X")
+        assertThat(validator, "Hello World")
             .isInvalid()
-            .withHint("does not have a valid mod10 check digit")
-    }
-
-    @Test
-    fun eanConstraint() {
-        val validator = Validator { ean(12) }
-
-        assertThat(validator, "098412808666")
-            .isValid()
-
-        assertThat(validator, "74709960")
-            .isInvalid()
-            .withHint("is not a valid ean12")
+            .withHint("must have at least 4 and at most 10 characters")
     }
 
     @Test
@@ -220,6 +248,85 @@ class StringsTest {
     }
 
     @Test
+    fun matchesConstraint() {
+        val validator = Validator { matches(".+@.+") }
+
+        assertThat(validator, "a@a")
+            .isValid()
+        assertThat(validator, "a@a@a@a")
+            .isValid()
+        assertThat(validator, " a@a ")
+            .isValid()
+
+        assertThat(validator, "a")
+            .isInvalid()
+            .withHint("must match the expected pattern")
+    }
+
+    @Test
+    fun matchesWithPrecompiledRegexConstraint() {
+        val validator = Validator { matches("\\w+@\\w+\\.\\w+".toRegex()) }
+
+        assertThat(validator, "tester@example.com")
+            .isValid()
+
+        assertThat(validator, "tester@example")
+            .isInvalid()
+            .withHint("must match the expected pattern")
+        assertThat(validator, " tester@example.com")
+            .isInvalid()
+            .withHint("must match the expected pattern")
+        assertThat(validator, "tester@example.com ")
+            .isInvalid()
+            .withHint("must match the expected pattern")
+    }
+
+    @Test
+    fun maxLengthConstraint() {
+        val validator = Validator { maxLength(10) }
+
+        assertThat(validator, "HelloWorld")
+            .isValid()
+        assertThat(validator, "Hello")
+            .isValid()
+        assertThat(validator, "")
+            .isValid()
+
+        assertThat(validator, "Hello World")
+            .isInvalid()
+            .withHint("must have at most 10 characters")
+    }
+
+    @Test
+    fun minLengthConstraint() {
+        val validator = Validator { minLength(10) }
+
+        assertThat(validator, "HelloWorld")
+            .isValid()
+        assertThat(validator, "Hello World")
+            .isValid()
+
+        assertThat(validator, "Hello")
+            .isInvalid()
+            .withHint("must have at least 10 characters")
+        assertThat(validator, "")
+            .isInvalid()
+            .withHint("must have at least 10 characters")
+    }
+
+    @Test
+    fun mod10Constraint() {
+        val validator = Validator { mod10(1, 3) }
+
+        assertThat(validator, "098412808666")
+            .isValid()
+
+        assertThat(validator, "3-598-21507-X")
+            .isInvalid()
+            .withHint("does not have a valid mod10 check digit")
+    }
+
+    @Test
     fun mod11Constraint() {
         val validator = Validator { mod11(7, 2) }
 
@@ -230,4 +337,78 @@ class StringsTest {
             .isInvalid()
             .withHint("does not have a valid mod11 check digit")
     }
+
+    @Test
+    fun nilUuidConstraint() {
+        val validator = Validator { nilUuid() }
+
+        assertThat(validator, "00000000-0000-0000-0000-000000000000")
+            .isValid()
+
+        assertThat(validator, "c63f510c-6214-21ed-9b6a-0242ac120002")
+            .isInvalid()
+            .withHint("is not the nil uuid")
+    }
+
+    @Test
+    fun noneConstraint() {
+        val validator = Validator { none(Char::isDigit) }
+
+        assertThat(validator, "abcd")
+            .isValid()
+
+        assertThat(validator, "abc0")
+            .isInvalid()
+            .withHint("some character does comply")
+    }
+
+
+    @Test
+    fun startsWithConstraint() {
+        val validator = Validator { startsWith("Hello") }
+
+        assertThat(validator, "Hello, World!")
+            .isValid()
+
+        assertThat(validator, "Goodbye, World!")
+            .isInvalid()
+            .withHint("does not start with \"Hello\"")
+    }
+
+    @Test
+    fun startsWithIgnoringCaseConstraint() {
+        val validator = Validator { startsWith("hello", true) }
+
+        assertThat(validator, "Hello, World!")
+            .isValid()
+
+        assertThat(validator, "Goodbye, World!")
+            .isInvalid()
+            .withHint("does not start with \"hello\" when ignoring case")
+    }
+
+    @Test
+    fun uuidConstraint() {
+        val validator = Validator { uuid() }
+
+        assertThat(validator, "c63f510c-6214-11ed-9b6a-0242ac120002")
+            .isValid()
+
+        assertThat(validator, "tester@example.com")
+            .isInvalid()
+            .withHint("is not a valid uuid")
+    }
+
+    @Test
+    fun uuidWithVersionConstraint() {
+        val validator = Validator { uuid(1) }
+
+        assertThat(validator, "c63f510c-6214-11ed-9b6a-0242ac120002")
+            .isValid()
+
+        assertThat(validator, "c63f510c-6214-21ed-9b6a-0242ac120002")
+            .isInvalid()
+            .withHint("is not a valid uuid version 1")
+    }
+
 }

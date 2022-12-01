@@ -38,5 +38,3 @@ fun isUuidVersion(version: Int): (String) -> Boolean {
     return { it.matches(regex) }
 }
 
-private val ALL_DIGITS = Regex("[0-9]*")
-fun isAllDigits(s: String): Boolean = s.matches(ALL_DIGITS)
