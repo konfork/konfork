@@ -48,7 +48,7 @@ class ReadmeExampleTest {
             }
             // Email is optional but if it is set it must be valid
             Person::email ifPresent {
-                pattern("\\w+@\\w+\\.\\w+") hint "Please provide a valid email address (optional)"
+                matches("\\w+@\\w+\\.\\w+") hint "Please provide a valid email address (optional)"
             }
         }
 
@@ -62,7 +62,7 @@ class ReadmeExampleTest {
             Event::organizer {
                 // even though the email is nullable you can force it to be set in the validation
                 Person::email required with {
-                    pattern("\\w+@bigcorp.com") hint "Organizers must have a BigCorp email address"
+                    matches("\\w+@bigcorp.com") hint "Organizers must have a BigCorp email address"
                 }
             }
 

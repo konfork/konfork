@@ -3,9 +3,9 @@ package io.github.konfork.core
 import io.github.konfork.core.ValidationBuilderTest.Errors.ONE
 import io.github.konfork.core.ValidationBuilderTest.Errors.TWO
 import io.github.konfork.core.validators.email
+import io.github.konfork.core.validators.matches
 import io.github.konfork.core.validators.minItems
 import io.github.konfork.core.validators.minLength
-import io.github.konfork.core.validators.pattern
 import io.github.konfork.test.assertThat
 import io.github.konfork.test.withHintMatches
 import kotlin.test.Test
@@ -233,7 +233,7 @@ class ValidationBuilderTest {
     fun validatingRequiredFieldsWithCustomErrorType() {
         val validator = Validator<Unit, Register, Errors> {
             Register::referredBy required with(staticHint(ONE)) {
-                pattern(staticHint(TWO), ".+@.+")
+                matches(staticHint(TWO), ".+@.+")
             } hint staticHint(TWO)
         }
 
@@ -488,7 +488,7 @@ class ValidationBuilderTest {
         data class Data(val registrations: Map<String, Register>? = null)
 
         val validator = Validator {
-            Data::registrations ifPresent  {
+            Data::registrations ifPresent {
                 onEach {
                     Map.Entry<String, Register>::value {
                         Register::email {
@@ -625,6 +625,7 @@ class ValidationBuilderTest {
         val home: Address = Address(),
         val secondaryHome: Address? = null,
     )
+
     data class Address(val address: String = "", val country: String = "DE")
     private data class RegisterContext(val subContext: AddressContext = AddressContext())
     private data class AddressContext(val validCountries: Set<String> = setOf("DE", "NL", "BE"))

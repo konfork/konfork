@@ -66,6 +66,18 @@ class StringsTest {
     }
 
     @Test
+    fun containsRegexConstraint() {
+        val validator = Validator { contains("@.+\\.com".toRegex()) }
+
+        assertThat(validator, "info@acme.com")
+            .isValid()
+
+        assertThat(validator, "info@acme.org")
+            .isInvalid()
+            .withHint("does not contain pattern")
+    }
+
+    @Test
     fun contentEqualsConstraint() {
         val validator = Validator { contentEquals("Hello, World!") }
 
@@ -236,6 +248,40 @@ class StringsTest {
     }
 
     @Test
+    fun matchesConstraint() {
+        val validator = Validator { matches(".+@.+") }
+
+        assertThat(validator, "a@a")
+            .isValid()
+        assertThat(validator, "a@a@a@a")
+            .isValid()
+        assertThat(validator, " a@a ")
+            .isValid()
+
+        assertThat(validator, "a")
+            .isInvalid()
+            .withHint("must match the expected pattern")
+    }
+
+    @Test
+    fun matchesWithPrecompiledRegexConstraint() {
+        val validator = Validator { matches("\\w+@\\w+\\.\\w+".toRegex()) }
+
+        assertThat(validator, "tester@example.com")
+            .isValid()
+
+        assertThat(validator, "tester@example")
+            .isInvalid()
+            .withHint("must match the expected pattern")
+        assertThat(validator, " tester@example.com")
+            .isInvalid()
+            .withHint("must match the expected pattern")
+        assertThat(validator, "tester@example.com ")
+            .isInvalid()
+            .withHint("must match the expected pattern")
+    }
+
+    @Test
     fun maxLengthConstraint() {
         val validator = Validator { maxLength(10) }
 
@@ -316,39 +362,6 @@ class StringsTest {
             .withHint("some character does comply")
     }
 
-    @Test
-    fun patternConstraint() {
-        val validator = Validator { pattern(".+@.+") }
-
-        assertThat(validator, "a@a")
-            .isValid()
-        assertThat(validator, "a@a@a@a")
-            .isValid()
-        assertThat(validator, " a@a ")
-            .isValid()
-
-        assertThat(validator, "a")
-            .isInvalid()
-            .withHint("must match the expected pattern")
-    }
-
-    @Test
-    fun precompiledPatternConstraint() {
-        val validator = Validator { pattern("\\w+@\\w+\\.\\w+".toRegex()) }
-
-        assertThat(validator, "tester@example.com")
-            .isValid()
-
-        assertThat(validator, "tester@example")
-            .isInvalid()
-            .withHint("must match the expected pattern")
-        assertThat(validator, " tester@example.com")
-            .isInvalid()
-            .withHint("must match the expected pattern")
-        assertThat(validator, "tester@example.com ")
-            .isInvalid()
-            .withHint("must match the expected pattern")
-    }
 
     @Test
     fun startsWithConstraint() {

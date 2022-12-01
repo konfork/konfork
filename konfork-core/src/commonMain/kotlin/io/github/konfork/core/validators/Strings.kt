@@ -3,7 +3,10 @@ package io.github.konfork.core.validators
 import io.github.konfork.core.*
 import io.github.konfork.predicates.*
 
-fun <C, E> Specification<C, String, E>.all(hint: HintBuilder<C, String, E>, predicate: (Char) -> Boolean): ConstraintBuilder<C, String, E> =
+fun <C, E> Specification<C, String, E>.all(
+    hint: HintBuilder<C, String, E>,
+    predicate: (Char) -> Boolean
+): ConstraintBuilder<C, String, E> =
     addConstraint(hint) { it.all(predicate) }
 
 fun <C> Specification<C, String, String>.all(predicate: (Char) -> Boolean): ConstraintBuilder<C, String, String> =
@@ -15,7 +18,10 @@ fun <C, E> Specification<C, String, E>.allDigits(hint: HintBuilder<C, String, E>
 fun <C> Specification<C, String, String>.allDigits(): ConstraintBuilder<C, String, String> =
     allDigits(staticHint("is not all digits"))
 
-fun <C, E> Specification<C, String, E>.any(hint: HintBuilder<C, String, E>, predicate: (Char) -> Boolean): ConstraintBuilder<C, String, E> =
+fun <C, E> Specification<C, String, E>.any(
+    hint: HintBuilder<C, String, E>,
+    predicate: (Char) -> Boolean
+): ConstraintBuilder<C, String, E> =
     addConstraint(hint) { it.any(predicate) }
 
 fun <C> Specification<C, String, String>.any(predicate: (Char) -> Boolean): ConstraintBuilder<C, String, String> =
@@ -29,7 +35,10 @@ fun <C, E> Specification<C, String, E>.contains(
 ): ConstraintBuilder<C, String, E> =
     addConstraint(hint, char, ignoreCase) { it.contains(char, ignoreCase) }
 
-fun <C> Specification<C, String, String>.contains(char: Char, ignoreCase: Boolean = false): ConstraintBuilder<C, String, String> {
+fun <C> Specification<C, String, String>.contains(
+    char: Char,
+    ignoreCase: Boolean = false
+): ConstraintBuilder<C, String, String> {
     val message = if (ignoreCase) {
         " when ignoring case"
     } else {
@@ -38,13 +47,26 @@ fun <C> Specification<C, String, String>.contains(char: Char, ignoreCase: Boolea
     return contains(stringHint("does not contain character '{0}'$message"), char, ignoreCase)
 }
 
-fun <C, E> Specification<C, String, E>.contentEquals(hint: HintBuilder<C, String, E>, other: String): ConstraintBuilder<C, String, E> =
+fun <C, E> Specification<C, String, E>.contains(hint: HintBuilder<C, String, E>, regex: Regex): ConstraintBuilder<C, String, E> =
+    addConstraint(hint) { it.contains(regex) }
+
+fun <C> Specification<C, String, String>.contains(regex: Regex): ConstraintBuilder<C, String, String> =
+    contains(staticHint("does not contain pattern"), regex)
+
+
+fun <C, E> Specification<C, String, E>.contentEquals(
+    hint: HintBuilder<C, String, E>,
+    other: String
+): ConstraintBuilder<C, String, E> =
     addConstraint(hint) { it.contentEquals(other) }
 
 fun <C> Specification<C, String, String>.contentEquals(other: String): ConstraintBuilder<C, String, String> =
     contentEquals(staticHint("content not equal"), other)
 
-fun <C, E> Specification<C, String, E>.ean(hint: HintBuilder<C, String, E>, length: Int): ConstraintBuilder<C, String, E> {
+fun <C, E> Specification<C, String, E>.ean(
+    hint: HintBuilder<C, String, E>,
+    length: Int
+): ConstraintBuilder<C, String, E> {
     val eanFn = isEan(length)
     return addConstraint(hint, length) { eanFn(it) }
 }
@@ -65,7 +87,10 @@ fun <C, E> Specification<C, String, E>.endsWith(
 ): ConstraintBuilder<C, String, E> =
     addConstraint(hint, suffix, ignoreCase) { it.endsWith(suffix, ignoreCase) }
 
-fun <C> Specification<C, String, String>.endsWith(suffix: String, ignoreCase: Boolean = false): ConstraintBuilder<C, String, String> {
+fun <C> Specification<C, String, String>.endsWith(
+    suffix: String,
+    ignoreCase: Boolean = false
+): ConstraintBuilder<C, String, String> {
     val message = if (ignoreCase) {
         " when ignoring case"
     } else {
@@ -134,6 +159,24 @@ fun <C, E> Specification<C, String, E>.luhn(hint: HintBuilder<C, String, E>): Co
 fun <C> Specification<C, String, String>.luhn(): ConstraintBuilder<C, String, String> =
     luhn(staticHint("does not have a valid luhn check digit"))
 
+fun <C, E> Specification<C, String, E>.matches(
+    hint: HintBuilder<C, String, E>,
+    regex: Regex
+): ConstraintBuilder<C, String, E> =
+    addConstraint(hint) { it.matches(regex) }
+
+fun <C> Specification<C, String, String>.matches(regex: Regex): ConstraintBuilder<C, String, String> =
+    matches(staticHint("must match the expected pattern"), regex)
+
+fun <C, E> Specification<C, String, E>.matches(
+    hint: HintBuilder<C, String, E>,
+    pattern: String
+): ConstraintBuilder<C, String, E> =
+    matches(hint, pattern.toRegex())
+
+fun <C> Specification<C, String, String>.matches(pattern: String): ConstraintBuilder<C, String, String> =
+    matches(pattern.toRegex())
+
 fun <C, E> Specification<C, String, E>.maxLength(
     hint: HintBuilder<C, String, E>,
     length: Int
@@ -156,7 +199,11 @@ fun <C, E> Specification<C, String, E>.minLength(
 fun <C> Specification<C, String, String>.minLength(length: Int): ConstraintBuilder<C, String, String> =
     minLength(stringHint("must have at least {0} characters"), length)
 
-fun <C, E> Specification<C, String, E>.mod10(hint: HintBuilder<C, String, E>, evenWeight: Int, oddWeight: Int): ConstraintBuilder<C, String, E> {
+fun <C, E> Specification<C, String, E>.mod10(
+    hint: HintBuilder<C, String, E>,
+    evenWeight: Int,
+    oddWeight: Int
+): ConstraintBuilder<C, String, E> {
     val mod10Fn = isMod10(evenWeight, oddWeight)
     return addConstraint(hint) { mod10Fn(it) }
 }
@@ -165,7 +212,11 @@ fun <C> Specification<C, String, String>.mod10(evenWeight: Int, oddWeight: Int):
     mod10(staticHint("does not have a valid mod10 check digit"), evenWeight, oddWeight)
 
 
-fun <C, E> Specification<C, String, E>.mod11(hint: HintBuilder<C, String, E>, startWeight: Int, endWeight: Int): ConstraintBuilder<C, String, E> {
+fun <C, E> Specification<C, String, E>.mod11(
+    hint: HintBuilder<C, String, E>,
+    startWeight: Int,
+    endWeight: Int
+): ConstraintBuilder<C, String, E> {
     val mod11Fn = isMod11(startWeight, endWeight)
     return addConstraint(hint) { mod11Fn(it) }
 }
@@ -179,23 +230,14 @@ fun <C, E> Specification<C, String, E>.nilUuid(hint: HintBuilder<C, String, E>):
 fun <C> Specification<C, String, String>.nilUuid(): ConstraintBuilder<C, String, String> =
     nilUuid(staticHint("is not the nil uuid"))
 
-fun <C, E> Specification<C, String, E>.none(hint: HintBuilder<C, String, E>, predicate: (Char) -> Boolean): ConstraintBuilder<C, String, E> =
+fun <C, E> Specification<C, String, E>.none(
+    hint: HintBuilder<C, String, E>,
+    predicate: (Char) -> Boolean
+): ConstraintBuilder<C, String, E> =
     addConstraint(hint) { it.none(predicate) }
 
 fun <C> Specification<C, String, String>.none(predicate: (Char) -> Boolean): ConstraintBuilder<C, String, String> =
     none(staticHint("some character does comply"), predicate)
-
-fun <C, E> Specification<C, String, E>.pattern(hint: HintBuilder<C, String, E>, pattern: Regex): ConstraintBuilder<C, String, E> =
-    addConstraint(hint, pattern) { it.matches(pattern) }
-
-fun <C> Specification<C, String, String>.pattern(pattern: Regex): ConstraintBuilder<C, String, String> =
-    pattern(staticHint("must match the expected pattern"), pattern)
-
-fun <C, E> Specification<C, String, E>.pattern(hint: HintBuilder<C, String, E>, pattern: String): ConstraintBuilder<C, String, E> =
-    pattern(hint, pattern.toRegex())
-
-fun <C> Specification<C, String, String>.pattern(pattern: String): ConstraintBuilder<C, String, String> =
-    pattern(pattern.toRegex())
 
 fun <C, E> Specification<C, String, E>.startsWith(
     hint: HintBuilder<C, String, E>,
@@ -204,7 +246,10 @@ fun <C, E> Specification<C, String, E>.startsWith(
 ): ConstraintBuilder<C, String, E> =
     addConstraint(hint, prefix, ignoreCase) { it.startsWith(prefix, ignoreCase) }
 
-fun <C> Specification<C, String, String>.startsWith(prefix: String, ignoreCase: Boolean = false): ConstraintBuilder<C, String, String> {
+fun <C> Specification<C, String, String>.startsWith(
+    prefix: String,
+    ignoreCase: Boolean = false
+): ConstraintBuilder<C, String, String> {
     val message = if (ignoreCase) {
         " when ignoring case"
     } else {
@@ -219,7 +264,10 @@ fun <C, E> Specification<C, String, E>.uuid(hint: HintBuilder<C, String, E>): Co
 fun <C> Specification<C, String, String>.uuid(): ConstraintBuilder<C, String, String> =
     uuid(staticHint("is not a valid uuid"))
 
-fun <C, E> Specification<C, String, E>.uuid(hint: HintBuilder<C, String, E>, version: Int): ConstraintBuilder<C, String, E> =
+fun <C, E> Specification<C, String, E>.uuid(
+    hint: HintBuilder<C, String, E>,
+    version: Int
+): ConstraintBuilder<C, String, E> =
     addConstraint(hint, version) { isUuidVersion(1)(it) }
 
 fun <C> Specification<C, String, String>.uuid(version: Int): ConstraintBuilder<C, String, String> =
