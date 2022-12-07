@@ -17,10 +17,18 @@ data class InvalidAssertion<E>(
         return this
     }
 
-    fun withHint(expected: E, vararg properties: Any): InvalidAssertion<E> {
-        assertEquals(expected, subject.get(*properties).errors[0], "Incorrect hint")
+    fun withHints(expected: List<E>, vararg properties: Any): InvalidAssertion<E> {
+        assertEquals(expected, subject.get(*properties).errors, "Incorrect hints")
         return this
     }
+
+    fun withHint(expected: E, index: Int, vararg properties: Any): InvalidAssertion<E> {
+        assertEquals(expected, subject.get(*properties).errors[index], "Incorrect hint")
+        return this
+    }
+
+    fun withHint(expected: E, vararg properties: Any): InvalidAssertion<E> =
+        withHints(listOf(expected), *properties)
 
     fun withHintMatch(vararg properties: Any, predicate: (E) -> Boolean): InvalidAssertion<E> {
         DefaultAsserter.assertTrue("Incorrect hint", predicate(subject.get(*properties).errors[0]))
