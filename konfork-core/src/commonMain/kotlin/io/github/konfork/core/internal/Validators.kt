@@ -28,15 +28,6 @@ internal class MappedKeyValidator<C, T, E>(
             .mapErrorKey { keyMapFn(it) }
 }
 
-internal class OptionalValidator<C, T : Any, E>(
-    private val validator: Validator<C, T, E>
-) : Validator<C, T?, E> {
-    override fun validate(context: C, value: T?): ValidationResult<E, T?> {
-        val nonNullValue = value ?: return Valid(value)
-        return validator(context, nonNullValue)
-    }
-}
-
 internal class RequiredValidator<C, T: Any, E>(
     private val requiredValidator: Validator<C, T?, E>,
     private val subValidator: Validator<C, T, E>,

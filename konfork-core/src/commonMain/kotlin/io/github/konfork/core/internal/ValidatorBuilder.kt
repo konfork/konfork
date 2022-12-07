@@ -91,7 +91,11 @@ internal class MapKeyValidatorBuilder<C, K, V, E>(
 internal class OptionalValidatorBuilder<C, T : Any, E>(
     private val subBuilder: ValidatorBuilder<C, T, E>,
 ) : ValidatorBuilder<C, T?, E> {
-    override fun build(): Validator<C, T?, E> = OptionalValidator(subBuilder.build())
+    override fun build(): Validator<C, T?, E> =
+        ConditionalValidator(
+            { it != null },
+            MappedValueValidator(subBuilder.build()) { it!! },
+        )
 }
 
 internal class RequiredValidatorBuilder<C, T : Any, E>(
