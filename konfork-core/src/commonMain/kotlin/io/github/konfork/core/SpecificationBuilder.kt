@@ -1,6 +1,6 @@
 package io.github.konfork.core
 
-import io.github.konfork.core.internal.ValidatorsBuilder
+import io.github.konfork.core.builders.ValidatorsBuilder
 
 class SpecificationBuilder<C, T, E> internal constructor(
     private val builder: ValidatorsBuilder<C, T, E>,

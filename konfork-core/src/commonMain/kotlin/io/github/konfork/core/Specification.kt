@@ -1,8 +1,9 @@
 package io.github.konfork.core
 
+import io.github.konfork.core.builders.*
+import io.github.konfork.core.builders.ValidatorBuilder
 import io.github.konfork.core.internal.*
-import io.github.konfork.core.internal.ValidatorBuilder
-import io.github.konfork.core.internal.ValidatorsBuilder
+import io.github.konfork.core.builders.ValidatorsBuilder
 import kotlin.jvm.JvmName
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1

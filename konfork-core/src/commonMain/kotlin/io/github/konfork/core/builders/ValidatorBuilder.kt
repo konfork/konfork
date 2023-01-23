@@ -1,12 +1,22 @@
-package io.github.konfork.core.internal
+package io.github.konfork.core.builders
 
 import io.github.konfork.core.*
+import io.github.konfork.core.internal.*
+import io.github.konfork.core.internal.ConditionalValidator
+import io.github.konfork.core.internal.ConstraintValidator
+import io.github.konfork.core.internal.EagerValidatorNode
+import io.github.konfork.core.internal.LazyValidatorNode
+import io.github.konfork.core.internal.MappedContextValidator
+import io.github.konfork.core.internal.MappedKeyValidator
+import io.github.konfork.core.internal.MappedValueValidator
+import io.github.konfork.core.internal.OnEachValidator
+import io.github.konfork.core.internal.RequiredValidator
 
-internal interface ValidatorBuilder<C, T, E> {
+interface ValidatorBuilder<C, T, E> {
     fun build(): Validator<C, T, E>
 }
 
-internal class PropertyValidatorBuilder<C, T, V, E>(
+class PropertyValidatorBuilder<C, T, V, E>(
     private val subBuilder: ValidatorBuilder<C, V, E>,
     private val name: String,
     private val mapFn: (T) -> V,
@@ -17,28 +27,28 @@ internal class PropertyValidatorBuilder<C, T, V, E>(
         ) { ".$name$it" }
 }
 
-internal class LazyValidatorNodeBuilder<C, T, E>(
+class LazyValidatorNodeBuilder<C, T, E>(
     private val subBuilder: ValidatorsBuilder<C, T, E>,
 ) : ValidatorBuilder<C, T, E> {
     override fun build(): Validator<C, T, E> =
         LazyValidatorNode(subBuilder.build())
 }
 
-internal class EagerValidatorNodeBuilder<C, T, E>(
+class EagerValidatorNodeBuilder<C, T, E>(
     private val subBuilder: ValidatorsBuilder<C, T, E>,
 ) : ValidatorBuilder<C, T, E> {
     override fun build(): Validator<C, T, E> =
         EagerValidatorNode(subBuilder.build())
 }
 
-internal class IterableValidatorBuilder<C, T, E>(
+class IterableValidatorBuilder<C, T, E>(
     private val subBuilder: ValidatorBuilder<C, T, E>,
 ) : ValidatorBuilder<C, Iterable<T>, E> {
     override fun build(): Validator<C, Iterable<T>, E> =
         OnEachValidator(subBuilder.build()) { _, index, name -> "[$index]$name" }
 }
 
-internal class ArrayValidatorBuilder<C, T, E>(
+class ArrayValidatorBuilder<C, T, E>(
     private val subBuilder: ValidatorBuilder<C, T, E>,
 ) : ValidatorBuilder<C, Array<T>, E> {
     override fun build(): Validator<C, Array<T>, E> =
@@ -48,7 +58,7 @@ internal class ArrayValidatorBuilder<C, T, E>(
         )
 }
 
-internal class MapValidatorBuilder<C, K, V, E>(
+class MapValidatorBuilder<C, K, V, E>(
     private val subBuilder: ValidatorBuilder<C, Map.Entry<K, V>, E>,
 ) : ValidatorBuilder<C, Map<K, V>, E> {
     override fun build(): Validator<C, Map<K, V>, E> =
@@ -60,7 +70,7 @@ internal class MapValidatorBuilder<C, K, V, E>(
         )
 }
 
-internal class MapValueValidatorBuilder<C, K, V, E>(
+class MapValueValidatorBuilder<C, K, V, E>(
     private val subBuilder: ValidatorBuilder<C, V, E>,
 ) : ValidatorBuilder<C, Map<K, V>, E> {
     override fun build(): Validator<C, Map<K, V>, E> =
@@ -74,7 +84,7 @@ internal class MapValueValidatorBuilder<C, K, V, E>(
         )
 }
 
-internal class MapKeyValidatorBuilder<C, K, V, E>(
+class MapKeyValidatorBuilder<C, K, V, E>(
     private val subBuilder: ValidatorBuilder<C, K, E>,
 ) : ValidatorBuilder<C, Map<K, V>, E> {
     override fun build(): Validator<C, Map<K, V>, E> =
@@ -88,7 +98,7 @@ internal class MapKeyValidatorBuilder<C, K, V, E>(
         )
 }
 
-internal class OptionalValidatorBuilder<C, T : Any, E>(
+class OptionalValidatorBuilder<C, T : Any, E>(
     private val subBuilder: ValidatorBuilder<C, T, E>,
 ) : ValidatorBuilder<C, T?, E> {
     override fun build(): Validator<C, T?, E> =
@@ -98,7 +108,7 @@ internal class OptionalValidatorBuilder<C, T : Any, E>(
         )
 }
 
-internal class RequiredValidatorBuilder<C, T : Any, E>(
+class RequiredValidatorBuilder<C, T : Any, E>(
     hint: HintBuilder<C, T?, E>,
     private val subBuilder: ValidatorBuilder<C, T, E>,
 ) : ValidatorBuilder<C, T?, E> {
@@ -111,14 +121,14 @@ internal class RequiredValidatorBuilder<C, T : Any, E>(
         )
 }
 
-internal class PrebuildValidatorBuilder<C, T, S, E>(
+class PrebuildValidatorBuilder<C, T, S, E>(
     private val validator: Validator<S, T, E>,
     private val mapFn: (C) -> S,
 ) : ValidatorBuilder<C, T, E> {
     override fun build(): Validator<C, T, E> = MappedContextValidator(validator, mapFn)
 }
 
-internal class ConstraintValidatorBuilder<C, T, E>(
+class ConstraintValidatorBuilder<C, T, E>(
     private var hint: HintBuilder<C, T, E>,
     private val arguments: HintArguments,
     private val test: (C, T) -> Boolean,
@@ -130,7 +140,7 @@ internal class ConstraintValidatorBuilder<C, T, E>(
     }
 }
 
-internal class ConditionalValidatorBuilder<C, T, E>(
+class ConditionalValidatorBuilder<C, T, E>(
     private val cond: C.(T) -> Boolean,
     private val subBuilder: ValidatorBuilder<C, T, E>,
 ): ValidatorBuilder<C, T, E> {
