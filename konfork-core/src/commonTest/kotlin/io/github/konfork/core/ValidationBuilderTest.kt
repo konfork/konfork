@@ -2,10 +2,7 @@ package io.github.konfork.core
 
 import io.github.konfork.core.ValidationBuilderTest.Errors.ONE
 import io.github.konfork.core.ValidationBuilderTest.Errors.TWO
-import io.github.konfork.core.validators.email
-import io.github.konfork.core.validators.matches
-import io.github.konfork.core.validators.minItems
-import io.github.konfork.core.validators.minLength
+import io.github.konfork.core.validators.*
 import io.github.konfork.test.assertThat
 import io.github.konfork.test.withHintMatches
 import kotlin.test.Test
@@ -400,6 +397,38 @@ class ValidationBuilderTest {
         assertThat(validator, Register(password = "1"))
             .isInvalid()
             .withErrorCount(1, Register::email)
+    }
+
+    @Test
+    fun validatingConditionalWithRequired() {
+        val validator = Validator {
+            Register::secondaryHome required with {
+
+                conditional { it.country == "DE" } with {
+                    Address::address {
+                        endsWith("Germany")
+                    }
+                }
+
+                conditional { it.country == "NL" } with {
+                    Address::address {
+                        endsWith("The Netherlands")
+                    }
+                }
+            }
+        }
+
+        assertThat(validator, Register())
+            .isInvalid()
+            .withErrorCount(1)
+            .withHint("is required", Register::secondaryHome)
+        assertThat(validator, Register(secondaryHome = Address("Somewhere in Belgium", "NL")))
+            .isInvalid()
+            .withErrorCount(1)
+            .withHint("does not end with \"The Netherlands\"", Register::secondaryHome, Address::address)
+
+        assertThat(validator, Register(secondaryHome = Address("Somewhere in The Netherlands", "NL")))
+            .isValid()
     }
 
     @Test

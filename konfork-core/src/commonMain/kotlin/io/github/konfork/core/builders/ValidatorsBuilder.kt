@@ -1,9 +1,10 @@
-package io.github.konfork.core.internal
+package io.github.konfork.core.builders
 
 import io.github.konfork.core.*
+import io.github.konfork.core.builders.*
 import kotlin.collections.Map.Entry
 
-internal class ValidatorsBuilder<C, T, E> : Specification<C, T, E>() {
+class ValidatorsBuilder<C, T, E> : Specification<C, T, E>() {
     private val subBuilders = mutableListOf<ValidatorBuilder<C, T, E>>()
 
     fun build(): List<Validator<C, T, E>> =
