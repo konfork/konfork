@@ -3,7 +3,7 @@ package io.github.konfork.core
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KProperty1
 
-data class ValidationErrors<out E>(
+data class PropertyValidationErrors<out E>(
     val propertyPath: String,
     val errors: List<E>,
 ) {
@@ -11,7 +11,7 @@ data class ValidationErrors<out E>(
 }
 
 sealed class ValidationResult<out E, out T> {
-    internal fun <R> map(transform: (T) -> R): ValidationResult<E, R> =
+    fun <R> map(transform: (T) -> R): ValidationResult<E, R> =
         flatMap { Valid(transform(it)) }
 
     internal fun mapErrorKey(keyTransform: (String) -> String): ValidationResult<E, T> =
@@ -41,11 +41,11 @@ data class Invalid<out E>(
     internal val internalErrors: Map<String, List<E>>,
 ) : ValidationResult<E, Nothing>() {
 
-    internal constructor(e: E) : this(mapOf("" to listOf(e)))
+    constructor(e: E) : this(mapOf("" to listOf(e)))
 
-    fun get(vararg path: Any): ValidationErrors<E> =
+    fun get(vararg path: Any): PropertyValidationErrors<E> =
         propertyPath(path)
-            .let { ValidationErrors(it, internalErrors[it].orEmpty()) }
+            .let { PropertyValidationErrors(it, internalErrors[it].orEmpty()) }
 
     private fun propertyPath(path: Array<out Any>) =
         path.joinToString("", transform = ::toPathSegment)
@@ -58,9 +58,9 @@ data class Invalid<out E>(
             else -> ".$it"
         }
 
-    val errors: List<ValidationErrors<E>> by lazy {
+    val errors: List<PropertyValidationErrors<E>> by lazy {
         internalErrors.map { (path, errors ) ->
-            ValidationErrors(path, errors)
+            PropertyValidationErrors(path, errors)
         }
     }
 

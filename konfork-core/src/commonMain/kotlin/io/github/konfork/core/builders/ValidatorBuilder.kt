@@ -146,3 +146,10 @@ class ConditionalValidatorBuilder<C, T, E>(
 ): ValidatorBuilder<C, T, E> {
     override fun build(): Validator<C, T, E> = ConditionalValidator(cond, subBuilder.build())
 }
+
+class MappedContextValueBuilder<C, T, V, E>(
+    private val subBuilder: ValidatorBuilder<C, V, E>,
+    private val mapFn: C.(T) -> V,
+): ValidatorBuilder<C, T, E> {
+    override fun build(): Validator<C, T, E> = MappedContextValueValidator(subBuilder.build(), mapFn)
+}

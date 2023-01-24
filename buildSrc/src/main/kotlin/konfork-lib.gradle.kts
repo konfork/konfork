@@ -26,7 +26,7 @@ kotlin {
         }
     }
     if (pluginSettings.buildJs.get()) {
-        js(BOTH) {
+        js(IR) {
             browser()
             nodejs()
         }
