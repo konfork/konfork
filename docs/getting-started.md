@@ -11,7 +11,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("io.github.konfork:konfork-core:0.0.4")
+                implementation("io.github.konfork:konfork-core:0.0.5")
             }
         }
     }
@@ -22,7 +22,7 @@ For jvm-only projects add:
 
 ```
 dependencies {
-    implementation("io.github.konfork:konfork-core-jvm:0.0.4")
+    implementation("io.github.konfork:konfork-core-jvm:0.0.5")
 }
 ```
 
