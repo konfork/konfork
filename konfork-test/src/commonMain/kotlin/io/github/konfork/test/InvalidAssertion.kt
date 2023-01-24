@@ -1,7 +1,7 @@
 package io.github.konfork.test
 
 import io.github.konfork.core.Invalid
-import io.github.konfork.core.ValidationErrors
+import io.github.konfork.core.PropertyValidationErrors
 import kotlin.test.DefaultAsserter
 import kotlin.test.assertEquals
 
@@ -35,7 +35,7 @@ data class InvalidAssertion<E>(
         return this
     }
 
-    private fun errors(properties: Array<out Any>): List<ValidationErrors<E>> =
+    private fun errors(properties: Array<out Any>): List<PropertyValidationErrors<E>> =
         if (properties.isEmpty()) {
             subject.errors
         } else {

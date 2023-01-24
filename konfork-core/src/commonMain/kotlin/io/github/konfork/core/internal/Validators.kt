@@ -19,6 +19,15 @@ internal class MappedValueValidator<C, T, V, E>(
             .map { value }
 }
 
+internal class MappedContextValueValidator<C, T, V, E>(
+    private val validator: Validator<C, V, E>,
+    private val mapValue: C.(T) -> V,
+) : Validator<C, T, E> {
+    override fun validate(context: C, value: T): ValidationResult<E, T> =
+        validator(context, context.mapValue(value))
+            .map { value }
+}
+
 internal class MappedKeyValidator<C, T, E>(
     private val validator: Validator<C, T, E>,
     private val keyMapFn: (String) -> String,

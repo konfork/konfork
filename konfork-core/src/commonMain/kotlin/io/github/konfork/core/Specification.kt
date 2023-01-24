@@ -83,7 +83,7 @@ abstract class Specification<C, T, E> {
     abstract fun <S> apply(validator: Validator<S, T, E>, mapContext: (C) -> S)
     fun apply(validator: Validator<C, T, E>) = apply(validator, ::identity)
 
-    internal abstract fun add(builder: ValidatorBuilder<C, T, E>)
+    abstract fun add(builder: ValidatorBuilder<C, T, E>)
 
     val <R> KProperty1<T, R>.has: Specification<C, R, E> get() = has(this.name, this)
     val <R> KFunction1<T, R>.has: Specification<C, R, E> get() = has(this.name, this)
